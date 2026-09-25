@@ -9,4 +9,6 @@
 
 #include "grafo.hpp"
 
+using namespace std;
+
 // TODO: implementar inserción de nodos/aristas y consulta de adyacencias.

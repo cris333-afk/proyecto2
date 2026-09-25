@@ -15,7 +15,6 @@
 #include "grafo.hpp"
 
 #include <string>
-#include <vector>
 
 using namespace std;
 

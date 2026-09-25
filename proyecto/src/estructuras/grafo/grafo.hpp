@@ -12,9 +12,31 @@
 #ifndef PROYECTO_GRAFO_HPP
 #define PROYECTO_GRAFO_HPP
 
-// TODO: declarar el grafo ponderado y sus operaciones:
-//   - agregar_nodo / agregar_arista(peso)
-//   - consultar adyacencias y pesos
-//   - representación elegida: lista de adyacencia o matriz de adyacencia
+#include <string>
+
+using namespace std;
+
+struct Arista {
+    int destino;
+    int latenciaMs;
+    Arista* siguiente;
+};
+
+class RedServidores {
+public:
+    RedServidores(int maxServidores = 20);
+    ~RedServidores();
+    int agregarServidor(const std::string& nombre);
+    bool agregarConexion(int a, int b, int latenciaMs);
+    bool eliminarConexion(int a, int b);
+    int rutaMasCorta(int origen, int destino);
+    bool pingGeneral();
+    std::string nombreDe(int id) const;
+
+private:
+    int maxServidores;
+    std::string* nombres;
+    Arista** adyacencia;
+};
 
 #endif // PROYECTO_GRAFO_HPP

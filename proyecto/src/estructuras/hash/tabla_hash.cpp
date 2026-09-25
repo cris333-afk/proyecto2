@@ -9,5 +9,7 @@
 
 #include "tabla_hash.hpp"
 
+using namespace std;
+
 // TODO: implementar la función de dispersión manual, el manejo de
 //       colisiones y las operaciones insertar/buscar/eliminar.

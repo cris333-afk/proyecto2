@@ -6,6 +6,7 @@
 *.out
 *.exe
 network_os
+network_audit_log.txt
 bin/
 build/
 

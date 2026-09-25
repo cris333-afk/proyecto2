@@ -9,5 +9,7 @@
 
 #include "arbol_directorios.hpp"
 
+using namespace std;
+
 // TODO: implementar crear(ruta), buscar_recursivo(nombre) y
 //       eliminar_en_cascada(ruta).

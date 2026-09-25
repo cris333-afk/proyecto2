@@ -10,9 +10,39 @@
 
 #include "auditoria.hpp"
 
+#include <ctime>
 #include <fstream>
+#include <iostream>
 
 using namespace std;
 
-// TODO: implementar registrar(evento) y leer_log() sobre
-//       data/network_audit_log.txt.
+void AuditLogger::registrar(const std::string& detalle) {
+    // El modo append conserva el historial de auditorías anterior.
+    ofstream archivo("network_audit_log.txt", ios::app);
+    if (!archivo.is_open()) {
+        return;
+    }
+
+    const time_t momento = time(nullptr);
+    char fechaHora[20] = {};
+    if (strftime(fechaHora, sizeof(fechaHora), "%Y-%m-%d %H:%M:%S",
+                 localtime(&momento)) == 0) {
+        return;
+    }
+
+    archivo << "[" << fechaHora << "] " << detalle << '\n';
+}
+
+void AuditLogger::leerYMostrar() {
+    ifstream archivo("network_audit_log.txt");
+    if (!archivo.is_open()) {
+        cout << "Aún no hay registros de auditoría.\n";
+        return;
+    }
+
+    string linea;
+    // Cada registro se imprime por separado para conservar su formato.
+    while (getline(archivo, linea)) {
+        cout << linea << '\n';
+    }
+}

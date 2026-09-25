@@ -12,9 +12,30 @@
 #ifndef PROYECTO_ARBOL_DIRECTORIOS_HPP
 #define PROYECTO_ARBOL_DIRECTORIOS_HPP
 
-// TODO: declarar el nodo del árbol y sus operaciones:
-//   - crear(ruta)
-//   - buscar_recursivo(nombre)
-//   - eliminar_en_cascada(ruta)
+#include <string>
+
+using namespace std;
+
+struct NodoArchivo {
+    std::string nombre;
+    bool esCarpeta;
+    NodoArchivo* primerHijo;
+    NodoArchivo* siguienteHermano;
+    NodoArchivo* padre;
+};
+
+class SistemaArchivos {
+public:
+    SistemaArchivos();
+    ~SistemaArchivos();
+    bool crear(const std::string& rutaPadre, const std::string& nombre, bool esCarpeta);
+    NodoArchivo* buscar(const std::string& nombre) const;
+    bool eliminar(const std::string& ruta);
+    void mostrar() const;
+    int contarNodos() const;
+
+private:
+    NodoArchivo* raiz;
+};
 
 #endif // PROYECTO_ARBOL_DIRECTORIOS_HPP

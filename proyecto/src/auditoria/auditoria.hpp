@@ -16,9 +16,10 @@
 
 using namespace std;
 
-// TODO: declarar el registro de auditoría:
-//   - registrar(evento)     : agrega una línea al log (data/network_audit_log.txt)
-//   - leer_log()            : lee y muestra el contenido del log
-//   - constante con la ruta del archivo: "data/network_audit_log.txt"
+class AuditLogger {
+public:
+    static void registrar(const std::string& detalle);
+    static void leerYMostrar();
+};
 
 #endif // PROYECTO_AUDITORIA_HPP
