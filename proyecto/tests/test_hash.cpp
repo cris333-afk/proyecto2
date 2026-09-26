@@ -11,7 +11,7 @@
  * Compilar (parado en la carpeta proyecto/):
  *   g++ -std=c++17 -Wall -Wextra -g -fsanitize=address \
  *       -Isrc/estructuras/hash -Isrc/auditoria \
- *       -o tests/test_hash tests/test_hash.cpp src/estructuras/hash/TablaHash.cpp
+ *       -o tests/test_hash tests/test_hash.cpp src/estructuras/hash/tabla_hash.cpp
  *   ./tests/test_hash
  *
  * Requerimientos que cubre esta suite (script independiente con su propio main):
@@ -32,13 +32,13 @@
  *  cuenta los operadores new/delete globales: en todos los escenarios el número
  *  de asignaciones coincidió exactamente con el de liberaciones.)
  *
- * Sobre AuditLogger: TablaHash.cpp ya resuelve el logger por sí solo con
+ * Sobre AuditLogger: tabla_hash.cpp ya resuelve el logger por sí solo con
  * #if __has_include("AuditLogger.h"), por lo que este script compila aislado.
  * Si tu entorno exige el enlace estricto del logger, inyecta el dummy que está
  * más abajo compilando con -DMOCK_AUDITLOGGER.
  * ========================================================================== */
 
-#include "TablaHash.h"
+#include "tabla_hash.hpp"
 
 #include <iostream>
 #include <string>
@@ -46,7 +46,7 @@
 /* --------------------------------------------------------------------------
  * Mock opcional del logger de auditoría (DESACTIVADO por defecto).
  * La tabla hash solo necesita AuditLogger::registrar(detalle) y el propio
- * TablaHash.cpp ya trae un respaldo interno con #if __has_include, así que esta
+ * tabla_hash.cpp ya trae un respaldo interno con #if __has_include, así que esta
  * prueba aislada compila sin este bloque. Se deja detrás de una macro para
  * poder forzarlo con -DMOCK_AUDITLOGGER y, además, para no definir un
  * AuditLogger distinto al real dentro de la misma compilación (así se respeta
