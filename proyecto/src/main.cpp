@@ -17,7 +17,7 @@ using namespace std;
 //   - src/auditoria/auditoria.hpp        (data/network_audit_log.txt)
 //   - src/estructuras/arbol/arbol_directorios.hpp
 //   - src/estructuras/hash/tabla_hash.hpp
-//   - src/estructuras/grafo/grafo.hpp
+//   - src/estructuras*/grafo/grafo.hpp
 //   - src/estructuras/grafo/dijkstra.hpp
 //   - src/estructuras/grafo/recorridos.hpp
 
