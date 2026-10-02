@@ -55,6 +55,12 @@ NodoArchivo* SistemaArchivos::navegar(const std::string& ruta) const {
 bool SistemaArchivos::crear(const std::string& rutaPadre,
                             const std::string& nombre,
                             bool esCarpeta) {
+
+    //Validacion de nombre vacio
+    if (nombre.empty()) {
+        return false;
+    }
+
     // 1) Resolver la ruta completa del padre desde la raíz.
     NodoArchivo* padre = navegar(rutaPadre);
     if (padre == nullptr) {
@@ -95,4 +101,35 @@ bool SistemaArchivos::crear(const std::string& rutaPadre,
     }
 
     return true;
+}
+
+// Busca recursivamente un nodo por nombre comenzando desde la raíz.
+NodoArchivo* SistemaArchivos::buscar(const std::string& nombre) const {
+
+    //Validacion de nombre, muestra null si el nombre esta vacio
+    if (nombre.empty()) {
+    return nullptr;
+}
+
+    return buscarPrivada(raiz, nombre);
+}
+
+// Auxiliar recursivo de buscar(): recorre en profundidad el árbol revisando
+// el nodo actual, su subárbol (primerHijo) y los hermanos de cada nivel
+// (siguienteHermano). Devuelve la primera coincidencia o nullptr.
+NodoArchivo* SistemaArchivos::buscarPrivada(NodoArchivo* nodo,
+                                            const std::string& nombre) const {
+    if (nodo == nullptr) {
+        return nullptr;  // fin de una rama o de la lista de hermanos
+    }
+    if (nodo->nombre == nombre) {
+        return nodo;  // coincidencia en el nodo actual
+    }
+    // Primero buscar en el subárbol del primer hijo...
+    NodoArchivo* encontrado = buscarPrivada(nodo->primerHijo, nombre);
+    if (encontrado != nullptr) {
+        return encontrado;
+    }
+    // ...y si no aparece, continuar con el siguiente hermano.
+    return buscarPrivada(nodo->siguienteHermano, nombre);
 }
