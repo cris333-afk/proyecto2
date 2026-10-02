@@ -27,15 +27,28 @@ struct NodoArchivo {
     NodoArchivo* padre;
 };
 
-// Árbol de directorios de un servidor. Por ahora solo define la estructura
-// base: el constructor que crea la raíz "/". Las operaciones (crear, buscar,
-// eliminar, mostrar, contarNodos y el destructor) se agregarán después.
+// Árbol de directorios de un servidor. Por ahora define la raíz "/", la
+// creación de nodos y un auxiliar privado para resolver rutas. Las demás
+// operaciones (buscar, eliminar, mostrar, contarNodos y el destructor) se
+// agregarán después.
 class SistemaArchivos {
 public:
     SistemaArchivos();  // crea la raíz "/" como carpeta
 
+    // Crea un archivo o carpeta como hijo directo del nodo rutaPadre.
+    // Devuelve false si rutaPadre no existe, no es carpeta o si ya hay
+    // un hijo con ese mismo nombre dentro de ese padre.
+    bool crear(const std::string& rutaPadre,
+               const std::string& nombre,
+               bool esCarpeta);
+
 private:
     NodoArchivo* raiz;  // raíz del sistema de archivos ("/")
+
+    // Resuelve una ruta absoluta ("/", "/docs", "/docs/txt") desde la raíz y
+    // devuelve el nodo correspondiente, o nullptr si algún nivel no existe.
+    // Recorre la ruta completa, por lo que no depende de buscar(nombre).
+    NodoArchivo* navegar(const std::string& ruta) const;
 };
 
 #endif // PROYECTO_ARBOL_DIRECTORIOS_HPP
