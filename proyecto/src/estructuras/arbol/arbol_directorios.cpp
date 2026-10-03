@@ -133,3 +133,59 @@ NodoArchivo* SistemaArchivos::buscarPrivada(NodoArchivo* nodo,
     // ...y si no aparece, continuar con el siguiente hermano.
     return buscarPrivada(nodo->siguienteHermano, nombre);
 }
+
+// Elimina un archivo o carpeta (con todo su contenido) mediante su ruta
+// completa. No usa buscar(nombre) para localizar el nodo: resuelve la ruta
+// desde la raíz con navegar(), evitando ambigüedades por nombres repetidos.
+bool SistemaArchivos::eliminar(const std::string& ruta) {
+    // 1) Resolver la ruta completa desde la raíz.
+    NodoArchivo* nodo = navegar(ruta);
+    if (nodo == nullptr) {
+        return false;  // la ruta no existe
+    }
+
+    // 2) No se permite eliminar la raíz "/".
+    if (nodo == raiz) {
+        return false;
+    }
+
+    // 3) Desvincular el nodo de la lista de hijos de su padre.
+    NodoArchivo* padre = nodo->padre;
+    if (padre->primerHijo == nodo) {
+        // Es el primer hijo: el padre pasa a apuntar al siguiente hermano.
+        padre->primerHijo = nodo->siguienteHermano;
+    } else {
+        // Es un hijo intermedio o el último: buscar el hermano anterior.
+        NodoArchivo* anterior = padre->primerHijo;
+        while (anterior != nullptr && anterior->siguienteHermano != nodo) {
+            anterior = anterior->siguienteHermano;
+        }
+        if (anterior != nullptr) {
+            anterior->siguienteHermano = nodo->siguienteHermano;
+        }
+    }
+
+    // 4) Liberar el nodo y todo su subárbol (postorden).
+    eliminarSubarbol(nodo);
+
+    return true;
+}
+
+// Libera el nodo y todos sus descendientes en postorden: primero recorre y
+// elimina los hijos y, al final, borra el propio nodo. Se guarda el
+// siguienteHermano ANTES de eliminar el hijo para no acceder a memoria ya
+// liberada.
+void SistemaArchivos::eliminarSubarbol(NodoArchivo* nodo) {
+    if (nodo == nullptr) {
+        return;  // nada que liberar
+    }
+
+    NodoArchivo* hijo = nodo->primerHijo;
+    while (hijo != nullptr) {
+        NodoArchivo* siguiente = hijo->siguienteHermano;  // guardar ANTES
+        eliminarSubarbol(hijo);                           // recursión a las hojas
+        hijo = siguiente;
+    }
+
+    delete nodo;  // se libera al final (postorden)
+}
