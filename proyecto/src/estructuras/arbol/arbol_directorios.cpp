@@ -21,6 +21,14 @@ SistemaArchivos::SistemaArchivos() {
     raiz->padre = nullptr;
 }
 
+// Libera TODO el árbol al destruir el objeto, reutilizando la eliminación en
+// cascada existente sobre la raíz. A diferencia de eliminar(), aquí sí se
+// libera la raíz, porque el objeto SistemaArchivos completo deja de existir.
+SistemaArchivos::~SistemaArchivos() {
+    eliminarSubarbol(raiz);
+    raiz = nullptr;  // evita dejar el puntero a memoria liberada
+}
+
 // Resuelve una ruta absoluta recorriéndola desde la raíz "/".
 // Se separa la ruta por '/' y en cada nivel se avanza por la lista de
 // hermanos hasta encontrar el hijo con ese nombre. Si un nivel no existe,

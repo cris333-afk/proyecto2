@@ -30,10 +30,11 @@ struct NodoArchivo {
 // Árbol de directorios de un servidor. Define la raíz "/", la creación de
 // nodos, la búsqueda recursiva por nombre, la eliminación en cascada por
 // ruta y un auxiliar privado para resolver rutas. Las demás operaciones
-// (mostrar, contarNodos y el destructor) se agregarán después.
+// (mostrar y contarNodos) se agregarán después.
 class SistemaArchivos {
 public:
     SistemaArchivos();  // crea la raíz "/" como carpeta
+    ~SistemaArchivos(); // libera TODO el árbol (incluida la raíz)
 
     // Crea un archivo o carpeta como hijo directo del nodo rutaPadre.
     // Devuelve false si rutaPadre no existe, no es carpeta o si ya hay
