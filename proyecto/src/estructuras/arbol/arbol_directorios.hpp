@@ -29,8 +29,8 @@ struct NodoArchivo {
 
 // Árbol de directorios de un servidor. Define la raíz "/", la creación de
 // nodos, la búsqueda recursiva por nombre, la eliminación en cascada por
-// ruta y un auxiliar privado para resolver rutas. Las demás operaciones
-// (mostrar y contarNodos) se agregarán después.
+// ruta, el mostrado del árbol y un auxiliar privado para resolver rutas.
+// La operación contarNodos se agregará después.
 class SistemaArchivos {
 public:
     SistemaArchivos();  // crea la raíz "/" como carpeta
@@ -54,6 +54,11 @@ public:
     // false si la ruta no existe o si se intenta eliminar la raíz "/".
     bool eliminar(const std::string& ruta);
 
+    // Muestra todo el árbol desde la raíz "/" por consola, con una sangría de
+    // 2 espacios por nivel de profundidad. No recibe el nivel: lo maneja
+    // internamente la recursión. Las carpetas se muestran con "/" al final.
+    void mostrar() const;
+
 private:
     NodoArchivo* raiz;  // raíz del sistema de archivos ("/")
 
@@ -70,6 +75,11 @@ private:
     // Libera el nodo y todos sus descendientes en postorden (primero los
     // hijos y, al final, el propio nodo).
     void eliminarSubarbol(NodoArchivo* nodo);
+
+    // Auxiliar recursivo de mostrar(): imprime el nodo con su sangría y
+    // recorre su primerHijo (un nivel más abajo) y su siguienteHermano
+    // (mismo nivel). No modifica la estructura del árbol.
+    void mostrarRecursivo(NodoArchivo* nodo, int nivel) const;
 };
 
 #endif // PROYECTO_ARBOL_DIRECTORIOS_HPP

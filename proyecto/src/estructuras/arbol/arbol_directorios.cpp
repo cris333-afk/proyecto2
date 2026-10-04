@@ -10,6 +10,9 @@
 
 #include "arbol_directorios.hpp"
 
+#include <iostream>
+#include <string>
+
 // Crea el nodo raíz del sistema de archivos: la carpeta "/".
 // Se reserva con new y queda sin hijos, sin hermano y sin padre.
 SistemaArchivos::SistemaArchivos() {
@@ -196,4 +199,33 @@ void SistemaArchivos::eliminarSubarbol(NodoArchivo* nodo) {
     }
 
     delete nodo;  // se libera al final (postorden)
+}
+
+// Muestra todo el árbol desde la raíz con nivel inicial 0.
+void SistemaArchivos::mostrar() const {
+    mostrarRecursivo(raiz, 0);
+}
+
+// Imprime el nodo con sangría de 2 * nivel espacios y recorre su subárbol.
+// Las carpetas llevan "/" al final; la raíz ya se llama "/", por lo que no
+// se le agrega otro para no imprimir "//".
+void SistemaArchivos::mostrarRecursivo(NodoArchivo* nodo, int nivel) const {
+    if (nodo == nullptr) {
+        return;  // fin de una rama o de la lista de hermanos
+    }
+
+    
+    // 1) Sangría de 2 espacios por cada nivel de profundidad.
+    std::cout << std::string(2 * nivel, ' ');
+
+    // 2) Nombre del nodo; las carpetas se muestran con "/" al final.
+    std::cout << nodo->nombre;
+    if (nodo->esCarpeta && nodo->nombre != "/") {
+        std::cout << "/";
+    }
+    std::cout << "\n";
+
+    // 3) Recorrer los hijos (un nivel más abajo) y los hermanos (mismo nivel).
+    mostrarRecursivo(nodo->primerHijo, nivel + 1);
+    mostrarRecursivo(nodo->siguienteHermano, nivel);
 }
