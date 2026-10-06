@@ -5,7 +5,7 @@
  * Archivo     : arbol_directorios.cpp
  * Descripción : Implementación del árbol n-ario de directorios: raíz "/" y
  *               creación de archivos/carpetas por ruta completa.
- * Autor       : (completar)
+ * Autor       : (Liseth Briones)
  * ========================================================================== */
 
 #include "arbol_directorios.hpp"
@@ -228,4 +228,22 @@ void SistemaArchivos::mostrarRecursivo(NodoArchivo* nodo, int nivel) const {
     // 3) Recorrer los hijos (un nivel más abajo) y los hermanos (mismo nivel).
     mostrarRecursivo(nodo->primerHijo, nivel + 1);
     mostrarRecursivo(nodo->siguienteHermano, nivel);
+}
+
+// Cuenta todos los nodos del árbol, incluida la raíz "/".
+int SistemaArchivos::contarNodos() const {
+    return contarRecursivo(raiz);
+}
+
+// Auxiliar recursivo: suma 1 por el nodo actual y delega en sus hijos
+// (primerHijo) y hermanos (siguienteHermano), respetando la representación
+// del árbol sin modificarlo.
+int SistemaArchivos::contarRecursivo(NodoArchivo* nodo) const {
+    if (nodo == nullptr) {
+        return 0;  // no hay nada que contar
+    }
+    int total = 1;  // el nodo actual
+    total += contarRecursivo(nodo->primerHijo);
+    total += contarRecursivo(nodo->siguienteHermano);
+    return total;
 }

@@ -6,7 +6,7 @@
  * Descripción : Declaraciones del árbol n-ario que modela el sistema de
  *               archivos: creación de nodos, búsqueda recursiva y
  *               eliminación en cascada. (Estructura base: nodo y clase.)
- * Autor       : (completar)
+ * Autor       : (Liseth Briones)
  * ========================================================================== */
 
 #ifndef PROYECTO_ARBOL_DIRECTORIOS_HPP
@@ -29,8 +29,8 @@ struct NodoArchivo {
 
 // Árbol de directorios de un servidor. Define la raíz "/", la creación de
 // nodos, la búsqueda recursiva por nombre, la eliminación en cascada por
-// ruta, el mostrado del árbol y un auxiliar privado para resolver rutas.
-// La operación contarNodos se agregará después.
+// ruta, el mostrado del árbol, el conteo de nodos y un auxiliar privado para
+// resolver rutas.
 class SistemaArchivos {
 public:
     SistemaArchivos();  // crea la raíz "/" como carpeta
@@ -59,6 +59,11 @@ public:
     // internamente la recursión. Las carpetas se muestran con "/" al final.
     void mostrar() const;
 
+    // Cuenta TODOS los nodos del árbol, incluyendo la raíz "/". Sirve para
+    // verificar cuantitativamente las creaciones y las eliminaciones en
+    // cascada. Es una operación de solo lectura.
+    int contarNodos() const;
+
 private:
     NodoArchivo* raiz;  // raíz del sistema de archivos ("/")
 
@@ -80,6 +85,11 @@ private:
     // recorre su primerHijo (un nivel más abajo) y su siguienteHermano
     // (mismo nivel). No modifica la estructura del árbol.
     void mostrarRecursivo(NodoArchivo* nodo, int nivel) const;
+
+    // Auxiliar recursivo de contarNodos(): cuenta el nodo recibido más todos
+    // los que cuelgan de su primerHijo y de su siguienteHermano. Al llamar
+    // con la raíz cuenta el árbol completo. No modifica la estructura.
+    int contarRecursivo(NodoArchivo* nodo) const;
 };
 
 #endif // PROYECTO_ARBOL_DIRECTORIOS_HPP
