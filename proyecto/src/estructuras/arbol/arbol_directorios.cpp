@@ -72,6 +72,12 @@ bool SistemaArchivos::crear(const std::string& rutaPadre,
         return false;
     }
 
+    // Validar que el nombre no contenga '/' porque una barra haría que
+    // el nombre no sea localizable directamente con su ruta completa.
+    if (nombre.find('/') != std::string::npos) {
+        return false;
+    }
+
     // 1) Resolver la ruta completa del padre desde la raíz.
     NodoArchivo* padre = navegar(rutaPadre);
     if (padre == nullptr) {

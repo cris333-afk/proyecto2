@@ -11,9 +11,21 @@
  *
  * Ejecutar:
  *   ./test_arbol.exe
+ 
  *
  * Autor       : (Liseth Briones)
  * ========================================================================== */
+
+
+
+ //EJECUTAR POR COMANDO:
+ // Primero:  g++ -std=c++17 -Wall -Wextra -g ".\proyecto\tests\test_arbol.cpp" ".\proyecto\src\estructuras\arbol\arbol_directorios.cpp" -o ".\proyecto\tests\output\test_arbol.exe"
+//y despues:
+            //.\proyecto\tests\output\test_arbol.exe
+
+
+//------------MAS DIRECTO---------------
+//g++ -std=c++17 -Wall -Wextra -g ".\proyecto\tests\test_arbol.cpp" ".\proyecto\src\estructuras\arbol\arbol_directorios.cpp" -o ".\proyecto\tests\output\test_arbol.exe"
 
 #include <iostream>
 #include <sstream>
