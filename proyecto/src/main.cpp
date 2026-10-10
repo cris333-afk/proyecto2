@@ -3,26 +3,37 @@
  * Materia     : Estructuras de Datos
  * Módulo      : Punto de entrada
  * Archivo     : main.cpp
- * Descripción : Inicializa el sistema, carga los .csv de data/ y lanza el
- *               menú interactivo. (Esqueleto: sin lógica todavía.)
- * Autor       : (completar)
+ * Descripción : Inicializa el sistema (árbol, hash y red), lanza el menú
+ *               interactivo y libera toda la memoria al salir.
  * ========================================================================== */
 
 #include <iostream>
 
+#include "menu/menu.hpp"
+#include "auditoria/auditoria.hpp"
+#include "estructuras/arbol/arbol_directorios.hpp"
+#include "estructuras/hash/tabla_hash.hpp"
+#include "estructuras/redservidores/RedServidores.h"
+
 using namespace std;
 
-// TODO: incluir los módulos del proyecto cuando estén implementados:
-//   - src/menu/menu.hpp                  (menú interactivo de consola)
-//   - src/auditoria/auditoria.hpp        (data/network_audit_log.txt)
-//   - src/estructuras/arbol/arbol_directorios.hpp
-//   - src/estructuras/hash/tabla_hash.hpp
-//   - src/estructuras/grafo/grafo.hpp
-//   - src/estructuras/grafo/dijkstra.hpp
-//   - src/estructuras/grafo/recorridos.hpp
-
 int main() {
-    // TODO: reemplazar por la inicialización real del Network OS.
-    cout << "Network OS: esqueleto inicial (sin lógica todavía)." << endl;
+    // Se reserva en heap porque el curso exige new/delete explícitos.
+    ContextoSistema ctx;
+    ctx.archivos = new SistemaArchivos();
+    ctx.usuarios = new TablaHash(101);
+    ctx.red = new RedServidores(20);
+
+    AuditLogger::registrar("Network OS iniciado");
+    ejecutar_menu(ctx);
+    AuditLogger::registrar("Network OS finalizado");
+
+    // Se libera en orden inverso para no dejar new sin delete.
+    delete ctx.red;
+    delete ctx.usuarios;
+    delete ctx.archivos;
+    ctx.red = nullptr;
+    ctx.usuarios = nullptr;
+    ctx.archivos = nullptr;
     return 0;
 }

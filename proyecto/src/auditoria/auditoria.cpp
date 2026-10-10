@@ -4,8 +4,8 @@
  * Módulo      : Auditoría
  * Archivo     : auditoria.cpp
  * Descripción : Implementación de la escritura/lectura del log de
- *               auditoría en data/network_audit_log.txt (pendiente).
- * Autor       : (completar)
+ *               auditoría en data/network_audit_log.txt.
+ * Autor       : Cris
  * ========================================================================== */
 
 #include "auditoria.hpp"
@@ -18,7 +18,7 @@ using namespace std;
 
 void AuditLogger::registrar(const std::string& detalle) {
     // El modo append conserva el historial de auditorías anterior.
-    ofstream archivo("network_audit_log.txt", ios::app);
+    ofstream archivo(RUTA_LOG_AUDITORIA, ios::app);
     if (!archivo.is_open()) {
         return;
     }
@@ -34,7 +34,7 @@ void AuditLogger::registrar(const std::string& detalle) {
 }
 
 void AuditLogger::leerYMostrar() {
-    ifstream archivo("network_audit_log.txt");
+    ifstream archivo(RUTA_LOG_AUDITORIA);
     if (!archivo.is_open()) {
         cout << "Aún no hay registros de auditoría.\n";
         return;
@@ -45,4 +45,8 @@ void AuditLogger::leerYMostrar() {
     while (getline(archivo, linea)) {
         cout << linea << '\n';
     }
+}
+
+void AuditLogger::leer_log() {
+    leerYMostrar();
 }

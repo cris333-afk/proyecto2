@@ -3,23 +3,20 @@
  * Materia     : Estructuras de Datos
  * Módulo      : Grafo — Recorridos (BFS / DFS)
  * Archivo     : recorridos.hpp
- * Descripción : Declaraciones de los recorridos del grafo: BFS por niveles
- *               (con cola) y DFS en profundidad (recursivo).
- *               (Esqueleto: sin declaraciones aún.)
- * Autor       : (completar)
+ * Descripción : Recorrido BFS por niveles sobre la interfaz del grafo.
+ * Autor       : Angel
  * ========================================================================== */
 
+// Responsabilidad: exponer el BFS que usa el ping sin atarse a RedServidores.
+// Depende de: IGrafo.h de redservidores.
 #ifndef PROYECTO_RECORRIDOS_HPP
 #define PROYECTO_RECORRIDOS_HPP
 
-#include "grafo.hpp"
+#include "../redservidores/IGrafo.h"
 
-#include <string>
-
-using namespace std;
-
-// TODO: declarar los recorridos del grafo:
-//   - bfs(origen)  : recorrido en anchura por niveles
-//   - dfs(origen)  : recorrido en profundidad (recursivo)
+// Recorre desde origen y devuelve visitado con new[] (o nullptr si falla).
+// El llamador es dueño del arreglo y debe liberarlo con delete[].
+bool* bfs(const IGrafo& grafo, int origen);
 
 #endif // PROYECTO_RECORRIDOS_HPP
+
