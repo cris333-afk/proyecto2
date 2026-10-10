@@ -8,4 +8,4 @@ Los tres archivos versionados son la entrada inicial del programa:
 
 `main.cpp` los carga en ese orden al iniciar. Si falta un archivo, el programa lo informa y continúa para que el menú siga disponible.
 
-Las líneas que empiezan con `#` son comentarios. El log `network_audit_log.txt` se genera durante la ejecución y no se versiona.
+Las líneas que empiezan con `#` son comentarios. El log `network_audit_log.txt` se genera en la raíz del proyecto durante la ejecución y no se versiona.

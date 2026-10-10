@@ -94,7 +94,6 @@ static void opCrear(ContextoSistema& contexto) {
     const bool ok = servidor->archivos.crear(
         padre.empty() ? "/" : padre, nombre, tipo == "1");
     cout << (ok ? "Creado.\n" : "No creado (padre, nombre o duplicado).\n");
-    AuditLogger::registrar(string("ARCHIVO crear ") + nombre);
 }
 
 static void opRegistrar(ContextoSistema& contexto) {
@@ -156,7 +155,6 @@ void ejecutar_menu(ContextoSistema& contexto) {
             } else {
                 const string ruta = leerLinea("Ruta (ej. /docs): ");
                 cout << (servidor->archivos.eliminar(ruta) ? "Eliminado.\n" : "No eliminado.\n");
-                AuditLogger::registrar(string("ARCHIVO eliminar ") + ruta);
             }
         } else if (opcion == 5) {
             opRegistrar(contexto);

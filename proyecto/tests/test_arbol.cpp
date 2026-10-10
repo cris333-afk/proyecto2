@@ -3,11 +3,10 @@
  * Materia     : Estructuras de Datos
  * Módulo      : Árbol de directorios — PRUEBAS AISLADAS
  * Archivo     : tests/test_arbol.cpp
- * Descripción : Pruebas AISLADAS del módulo SistemaArchivos. No depende de
- *               ningún otro módulo del proyecto (ni AuditLogger, TablaHash,
- *               grafo, menú, autenticación o red). Contiene pruebas
- *               automáticas con reporte PASS/FAIL y un modo interactivo
- *               para ejercitar el módulo manualmente.
+ * Descripción : Pruebas AISLADAS del módulo SistemaArchivos. Solo dependen
+ *               del árbol y de AuditLogger para registrar las operaciones.
+ *               Contiene pruebas automáticas con reporte PASS/FAIL y un modo
+ *               interactivo para ejercitar el módulo manualmente.
  *
  * Ejecutar:
  *   ./test_arbol.exe
@@ -19,13 +18,13 @@
 
 
  //EJECUTAR POR COMANDO:
- // Primero:  g++ -std=c++17 -Wall -Wextra -g ".\proyecto\tests\test_arbol.cpp" ".\proyecto\src\estructuras\arbol\arbol_directorios.cpp" -o ".\proyecto\tests\output\test_arbol.exe"
+  // Primero:  g++ -std=c++17 -Wall -Wextra -g "proyecto/tests/test_arbol.cpp" "proyecto/src/estructuras/arbol/arbol_directorios.cpp" "proyecto/src/auditoria/auditoria.cpp" -o "proyecto/tests/output/test_arbol.exe"
 //y despues:
             //.\proyecto\tests\output\test_arbol.exe
 
 
 //------------MAS DIRECTO---------------
-//g++ -std=c++17 -Wall -Wextra -g ".\proyecto\tests\test_arbol.cpp" ".\proyecto\src\estructuras\arbol\arbol_directorios.cpp" -o ".\proyecto\tests\output\test_arbol.exe"
+//g++ -std=c++17 -Wall -Wextra -g "proyecto/tests/test_arbol.cpp" "proyecto/src/estructuras/arbol/arbol_directorios.cpp" "proyecto/src/auditoria/auditoria.cpp" -o "proyecto/tests/output/test_arbol.exe"
 
 #include <iostream>
 #include <sstream>

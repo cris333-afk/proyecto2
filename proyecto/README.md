@@ -11,7 +11,7 @@ de usuarios. El menú permite seleccionar el servidor activo; las operaciones de
 archivos y usuarios se aplican solo a ese servidor. Las conexiones y las rutas
 se calculan sobre el grafo completo.
 
-El sistema registra las operaciones en `data/network_audit_log.txt` y libera los
+El sistema registra las operaciones en `network_audit_log.txt` y libera los
 recursos con `delete`/`delete[]` al salir.
 
 ## Integrantes
@@ -34,8 +34,8 @@ proyecto/
 │   ├── README.md
 │   ├── servidores.csv       -> nombres y orden de ids
 │   ├── conexiones.csv       -> origen,destino,latencia_ms
-│   ├── rutas.csv             -> servidor,ruta_padre,nombre,tipo
-│   └── network_audit_log.txt (generado, no versionado)
+│   └── rutas.csv             -> servidor,ruta_padre,nombre,tipo
+├── network_audit_log.txt (generado, no versionado)
 ├── docs/
 │   ├── README.md
 │   ├── arbol-directorios.md
