@@ -536,6 +536,42 @@ static void test_carga_alta_y_factor_de_carga() {
 }
 
 /* ==========================================================================
+ * 9) Estrés: 2000 usuarios con colisiones forzadas + eliminar en cadena larga
+ * ========================================================================== */
+static void test_estres_2000_colisiones() {
+    seccion("9) Estres 2000 usuarios con colisiones forzadas");
+
+    // Tabla chica a propósito: 2000/31 ≈ 64 por bucket, cadenas larguísimas.
+    TablaHash tabla(31);
+    bool todoInsertado = true;
+    for (int i = 0; i < 2000; ++i) {
+        if (!tabla.insertar("colision_" + std::to_string(i), "clave_" + std::to_string(i))) {
+            todoInsertado = false;
+        }
+    }
+    verificar(todoInsertado, "se insertan 2000 usuarios con colisiones sin rechazos");
+
+    bool todosExisten = true;
+    bool todosAutentican = true;
+    for (int i = 0; i < 2000; ++i) {
+        std::string u = "colision_" + std::to_string(i);
+        if (!tabla.existe(u)) todosExisten = false;
+        if (!tabla.autenticar(u, "clave_" + std::to_string(i))) todosAutentican = false;
+    }
+    verificar(todosExisten, "existe() confirma los 2000 usuarios colisionados");
+    verificar(todosAutentican, "autenticar() acepta las 2000 claves correctas");
+    tabla.mostrarEstadisticas();  // factor ~64.5 y cadena más larga >> 1
+
+    // Eliminar en 3 puntos de la zona colisionada y verificar vecinos intactos.
+    bool e1 = tabla.eliminar("colision_0");
+    bool e2 = tabla.eliminar("colision_1000");
+    bool e3 = tabla.eliminar("colision_1999");
+    verificar(e1 && e2 && e3, "eliminar() cabeza/medio/cola de zona colisionada");
+    verificar(!tabla.existe("colision_0") && tabla.existe("colision_1"),
+              "tras eliminar, vecinos de la cadena siguen intactos");
+}
+
+/* ==========================================================================
  * Runner principal
  * ========================================================================== */
 int main() {
@@ -549,6 +585,7 @@ int main() {
     test_reinsercion_y_estres();
     test_destructor_por_alcance();
     test_carga_alta_y_factor_de_carga();
+    test_estres_2000_colisiones();
 
     std::cout << "\n===== RESUMEN =====\n";
     std::cout << "Pruebas correctas : " << pruebas_ok << '\n';

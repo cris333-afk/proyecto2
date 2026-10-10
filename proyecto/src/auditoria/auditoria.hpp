@@ -5,8 +5,8 @@
  * Archivo     : auditoria.hpp
  * Descripción : Declaraciones del registro de auditoría: escritura y
  *               lectura de data/network_audit_log.txt (una línea por
- *               operación del sistema). (Esqueleto: sin declaraciones aún.)
- * Autor       : (completar)
+ *               operación del sistema).
+ * Autor       : Cris
  * ========================================================================== */
 
 #ifndef PROYECTO_AUDITORIA_HPP
@@ -16,9 +16,15 @@
 
 using namespace std;
 
-// TODO: declarar el registro de auditoría:
-//   - registrar(evento)     : agrega una línea al log (data/network_audit_log.txt)
-//   - leer_log()            : lee y muestra el contenido del log
-//   - constante con la ruta del archivo: "data/network_audit_log.txt"
+// Ruta única del log de auditoría (versionada fuera: ver .gitignore).
+static const char* const RUTA_LOG_AUDITORIA = "data/network_audit_log.txt";
+
+class AuditLogger {
+public:
+    static void registrar(const std::string& detalle);
+    static void leerYMostrar();
+    // Alias pedido en el esqueleto original: lee y muestra el log.
+    static void leer_log();
+};
 
 #endif // PROYECTO_AUDITORIA_HPP

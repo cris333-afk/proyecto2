@@ -1,0 +1,63 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar network_os",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-std=c++17",
+                "-Wall",
+                "-Wextra",
+                "-g",
+                "-Isrc",
+                "src/main.cpp",
+                "src/menu/menu.cpp",
+                "src/auditoria/auditoria.cpp",
+                "src/estructuras/arbol/arbol_directorios.cpp",
+                "src/estructuras/hash/tabla_hash.cpp",
+                "src/estructuras/grafo/dijkstra.cpp",
+                "src/estructuras/grafo/recorridos.cpp",
+                "src/estructuras/redservidores/RedServidores.cpp",
+                "src/estructuras/redservidores/ResultadoRuta.cpp",
+                "src/estructuras/redservidores/ColaCircular.cpp",
+                "src/estructuras/redservidores/BusquedaAnchura.cpp",
+                "src/estructuras/redservidores/ImpresorRutas.cpp",
+                "-o",
+                "network_os.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/proyecto"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared",
+                "focus": false
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Limpiar network_os",
+            "type": "shell",
+            "command": "Remove-Item",
+            "args": [
+                "-Force",
+                "network_os.exe",
+                "-ErrorAction",
+                "SilentlyContinue"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/proyecto"
+            },
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared"
+            }
+        }
+    ]
+}

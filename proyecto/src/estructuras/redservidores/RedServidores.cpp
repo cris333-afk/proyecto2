@@ -5,12 +5,10 @@
 #include "BusquedaAnchura.h"
 #include "ImpresorRutas.h"
 #include "../grafo/dijkstra.hpp"
+#include "../../auditoria/auditoria.hpp"
 
-// AUDITORÍA TEMPORAL: se usa cout hasta que exista la auditoría de Cris.
+// Auditoría real del equipo (Cris): escribe en data/network_audit_log.txt.
 #include <iostream>
-static void registrarAuditoria(const std::string& detalle) {
-    std::cout << "[AUDIT] " << detalle << std::endl;
-}
 
 // Reserva los arreglos de cabezas y nombres.
 RedServidores::RedServidores(int maxServidores) {
@@ -57,7 +55,7 @@ int RedServidores::agregarServidor(const std::string& nombre) {
     nombres[id] = nombre;
     // La cabeza ya quedó en nullptr desde el constructor.
     ++cantidad;
-    registrarAuditoria("Servidor agregado: id=" + std::to_string(id) + " nombre=" + nombre);
+    AuditLogger::registrar("Servidor agregado: id=" + std::to_string(id) + " nombre=" + nombre);
     return id;
 }
 
@@ -105,7 +103,7 @@ bool RedServidores::agregarConexion(int a, int b, int latenciaMs) {
     adyacencia[a] = haciaB;
     Arista* haciaA = new Arista{a, latenciaMs, adyacencia[b]};
     adyacencia[b] = haciaA;
-    registrarAuditoria("Conexion agregada: " + std::to_string(a) + "-" + std::to_string(b) + " latencia=" + std::to_string(latenciaMs));
+    AuditLogger::registrar("Conexion agregada: " + std::to_string(a) + "-" + std::to_string(b) + " latencia=" + std::to_string(latenciaMs));
     return true;
 }
 
@@ -121,7 +119,7 @@ bool RedServidores::eliminarConexion(int a, int b) {
     }
     eliminarUnSentido(a, b);
     eliminarUnSentido(b, a);
-    registrarAuditoria("Conexion eliminada: " + std::to_string(a) + "-" + std::to_string(b));
+    AuditLogger::registrar("Conexion eliminada: " + std::to_string(a) + "-" + std::to_string(b));
     return true;
 }
 
@@ -131,7 +129,7 @@ int RedServidores::rutaMasCorta(int origen, int destino) {
     // Solo se aceptan ids de servidores ya agregados.
     if (!idValido(origen) || !idValido(destino)) {
         ImpresorRutas::imprimirIdsInvalidos();
-        registrarAuditoria("Ruta no calculada: ids invalidos origen=" + std::to_string(origen) + " destino=" + std::to_string(destino));
+        AuditLogger::registrar("Ruta no calculada: ids invalidos origen=" + std::to_string(origen) + " destino=" + std::to_string(destino));
         return -1;
     }
     // El algoritmo devuelve el resultado y aquí solo se presenta y registra.
@@ -140,16 +138,16 @@ int RedServidores::rutaMasCorta(int origen, int destino) {
     algoritmo.calcular(*this, origen, destino, resultado);
     // El costo hacia uno mismo es cero aunque no haya saltos que mostrar.
     if (origen == destino) {
-        registrarAuditoria("Ruta calculada: origen=" + std::to_string(origen) + " destino=" + std::to_string(destino) + " costo=0");
+        AuditLogger::registrar("Ruta calculada: origen=" + std::to_string(origen) + " destino=" + std::to_string(destino) + " costo=0");
         return 0;
     }
     if (!resultado.existe()) {
         ImpresorRutas::imprimirSinRuta();
-        registrarAuditoria("Ruta no encontrada: origen=" + std::to_string(origen) + " destino=" + std::to_string(destino));
+        AuditLogger::registrar("Ruta no encontrada: origen=" + std::to_string(origen) + " destino=" + std::to_string(destino));
         return -1;
     }
     ImpresorRutas::imprimirRuta(*this, resultado);
-    registrarAuditoria("Ruta calculada: origen=" + std::to_string(origen) + " destino=" + std::to_string(destino) + " costo=" + std::to_string(resultado.costo()));
+    AuditLogger::registrar("Ruta calculada: origen=" + std::to_string(origen) + " destino=" + std::to_string(destino) + " costo=" + std::to_string(resultado.costo()));
     return resultado.costo();
 }
 
@@ -158,14 +156,14 @@ bool RedServidores::pingGeneral() {
     // Sin servidores no hay red que diagnosticar.
     if (cantidad <= 0) {
         ImpresorRutas::imprimirRedVacia();
-        registrarAuditoria("Ping general: red vacia");
+        AuditLogger::registrar("Ping general: red vacia");
         return false;
     }
     // El recorrido devuelve el arreglo y esta clase es dueña de liberarlo.
     bool* visitado = BusquedaAnchura::recorrer(*this, 0);
     if (visitado == nullptr) {
         ImpresorRutas::imprimirRedVacia();
-        registrarAuditoria("Ping general: red vacia");
+        AuditLogger::registrar("Ping general: red vacia");
         return false;
     }
     // Se cuentan los visitados para saber si todo fue alcanzado.
@@ -179,10 +177,10 @@ bool RedServidores::pingGeneral() {
     bool conexa = (alcanzados == total);
     if (conexa) {
         ImpresorRutas::imprimirRedConexa();
-        registrarAuditoria("Ping general: red conexa");
+        AuditLogger::registrar("Ping general: red conexa");
     } else {
         ImpresorRutas::imprimirNoAlcanzados(*this, visitado, total);
-        registrarAuditoria("Ping general: red no conexa");
+        AuditLogger::registrar("Ping general: red no conexa");
     }
     // Se libera el arreglo del recorrido en ambas salidas.
     delete[] visitado;

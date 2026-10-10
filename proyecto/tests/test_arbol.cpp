@@ -958,6 +958,45 @@ int main() {
     probarContarNodos();
     probarDestructor();
 
+    std::cout << "\n================================ ESTRES ================================" << std::endl;
+
+    // ESTRES 1: jerarquía profunda 500 carpetas anidadas vía crear() encadenado.
+    {
+        SistemaArchivos fs;
+        std::string rutaPadre = "/";
+        bool todoOk = true;
+        for (int i = 0; i < 500; ++i) {
+            std::string nombre = "nivel_" + std::to_string(i);
+            if (!fs.crear(rutaPadre, nombre, true)) { todoOk = false; break; }
+            rutaPadre = (rutaPadre == "/") ? (rutaPadre + nombre) : (rutaPadre + "/" + nombre);
+        }
+        verificar(todoOk, "ESTRES crear 500 carpetas anidadas sin fallo");
+        // buscar() la hoja profunda por nombre (no por ruta).
+        verificar(fs.buscar("nivel_499") != nullptr, "ESTRES buscar() hoja profunda nivel_499");
+        verificar(fs.contarNodos() == 501, "ESTRES contarNodos()==501 (raiz+500)");
+        // eliminar() en cascada desde un nivel medio libera todo lo de abajo.
+        int antes = fs.contarNodos();
+        bool elim = fs.eliminar("/nivel_0/nivel_1/nivel_2/nivel_3/nivel_4/nivel_5/nivel_6/nivel_7/nivel_8/nivel_9/nivel_10/nivel_11/nivel_12/nivel_13/nivel_14/nivel_15/nivel_16/nivel_17/nivel_18/nivel_19/nivel_20/nivel_21/nivel_22/nivel_23/nivel_24/nivel_25/nivel_26/nivel_27/nivel_28/nivel_29/nivel_30/nivel_31/nivel_32/nivel_33/nivel_34/nivel_35/nivel_36/nivel_37/nivel_38/nivel_39/nivel_40/nivel_41/nivel_42/nivel_43/nivel_44/nivel_45/nivel_46/nivel_47/nivel_48/nivel_49/nivel_50/nivel_51/nivel_52/nivel_53/nivel_54/nivel_55/nivel_56/nivel_57/nivel_58/nivel_59/nivel_60/nivel_61/nivel_62/nivel_63/nivel_64/nivel_65/nivel_66/nivel_67/nivel_68/nivel_69/nivel_70/nivel_71/nivel_72/nivel_73/nivel_74/nivel_75/nivel_76/nivel_77/nivel_78/nivel_79/nivel_80/nivel_81/nivel_82/nivel_83/nivel_84/nivel_85/nivel_86/nivel_87/nivel_88/nivel_89/nivel_90/nivel_91/nivel_92/nivel_93/nivel_94/nivel_95/nivel_96/nivel_97/nivel_98/nivel_99/nivel_100/nivel_101/nivel_102/nivel_103/nivel_104/nivel_105/nivel_106/nivel_107/nivel_108/nivel_109/nivel_110/nivel_111/nivel_112/nivel_113/nivel_114/nivel_115/nivel_116/nivel_117/nivel_118/nivel_119/nivel_120/nivel_121/nivel_122/nivel_123/nivel_124/nivel_125/nivel_126/nivel_127/nivel_128/nivel_129/nivel_130/nivel_131/nivel_132/nivel_133/nivel_134/nivel_135/nivel_136/nivel_137/nivel_138/nivel_139/nivel_140/nivel_141/nivel_142/nivel_143/nivel_144/nivel_145/nivel_146/nivel_147/nivel_148/nivel_149/nivel_150/nivel_151/nivel_152/nivel_153/nivel_154/nivel_155/nivel_156/nivel_157/nivel_158/nivel_159/nivel_160/nivel_161/nivel_162/nivel_163/nivel_164/nivel_165/nivel_166/nivel_167/nivel_168/nivel_169/nivel_170/nivel_171/nivel_172/nivel_173/nivel_174/nivel_175/nivel_176/nivel_177/nivel_178/nivel_179/nivel_180/nivel_181/nivel_182/nivel_183/nivel_184/nivel_185/nivel_186/nivel_187/nivel_188/nivel_189/nivel_190/nivel_191/nivel_192/nivel_193/nivel_194/nivel_195/nivel_196/nivel_197/nivel_198/nivel_199/nivel_200/nivel_201/nivel_202/nivel_203/nivel_204/nivel_205/nivel_206/nivel_207/nivel_208/nivel_209/nivel_210/nivel_211/nivel_212/nivel_213/nivel_214/nivel_215/nivel_216/nivel_217/nivel_218/nivel_219/nivel_220/nivel_221/nivel_222/nivel_223/nivel_224/nivel_225/nivel_226/nivel_227/nivel_228/nivel_229/nivel_230/nivel_231/nivel_232/nivel_233/nivel_234/nivel_235/nivel_236/nivel_237/nivel_238/nivel_239/nivel_240/nivel_241/nivel_242/nivel_243/nivel_244/nivel_245/nivel_246/nivel_247/nivel_248/nivel_249");
+        verificar(elim, "ESTRES eliminar() cascada desde nivel_250");
+        verificar(fs.contarNodos() == 250, "ESTRES contarNodos()==250 tras podar 250 niveles+hoja");
+        verificar(antes - fs.contarNodos() == 251, "ESTRES baja exacta de 251 nodos");
+        // Al salir del bloque el destructor libera lo restante (ASan lo vigila).
+    }
+
+    // ESTRES 2: carpeta con 300 archivos, cascada baja exactamente 300.
+    {
+        SistemaArchivos fs;
+        verificar(fs.crear("/", "masiva", true), "ESTRES crear /masiva");
+        for (int i = 0; i < 300; ++i) {
+            fs.crear("/masiva", "f_" + std::to_string(i), false);
+        }
+        verificar(fs.contarNodos() == 302, "ESTRES contarNodos()==302 (raiz+masiva+300)");
+        int antes = fs.contarNodos();
+        verificar(fs.eliminar("/masiva"), "ESTRES eliminar /masiva en cascada");
+        verificar(fs.contarNodos() == 1, "ESTRES solo queda la raiz");
+        verificar(antes - fs.contarNodos() == 301, "ESTRES baja exacta de 301 nodos");
+    }
+
     std::cout << "\n================================" << std::endl;
     std::cout << "RESUMEN DE PRUEBAS" << std::endl;
     std::cout << "================================" << std::endl;

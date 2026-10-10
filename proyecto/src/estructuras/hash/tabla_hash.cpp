@@ -16,18 +16,9 @@
 
 /* --------------------------------------------------------------------------
  * Integración con el módulo de auditoría (responsable: Cris).
- * De la auditoría solo se necesita el método estático
- * AuditLogger::registrar(detalle). Si AuditLogger.h ya está en la rama se usa
- * el real; si todavía no llegó, el respaldo permite compilar y probar ESTE
- * módulo de forma aislada sin tocar el contrato de la interfaz.
+ * Usa el AuditLogger real que escribe en data/network_audit_log.txt.
  * -------------------------------------------------------------------------- */
-#if __has_include("AuditLogger.h")
-#  include "AuditLogger.h"
-#else
-struct AuditLogger {
-    static void registrar(const std::string& detalle) { (void)detalle; }
-};
-#endif
+#include "../../auditoria/auditoria.hpp"
 
 /* --------------------------------------------------------------------------
  * Constructor: reserva el arreglo dinámico de punteros y deja TODOS los
