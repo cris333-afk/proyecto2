@@ -1,0 +1,6 @@
+# Conexiones iniciales del grafo no dirigido.
+# Formato: origen,destino,latencia_ms
+0,1,10
+1,2,8
+0,2,25
+2,3,7

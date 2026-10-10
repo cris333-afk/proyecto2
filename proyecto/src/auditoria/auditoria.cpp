@@ -4,7 +4,7 @@
  * Módulo      : Auditoría
  * Archivo     : auditoria.cpp
  * Descripción : Implementación de la escritura/lectura del log de
- *               auditoría en data/network_audit_log.txt.
+ *               auditoría en network_audit_log.txt.
  * Autor       : Cris
  * ========================================================================== */
 

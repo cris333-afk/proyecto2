@@ -1,85 +1,121 @@
 # Network OS — Sistema de archivos distribuido con enrutador de red
 
 Proyecto universitario de **Estructuras de Datos**. Simula un *Network OS* que
-integra un **árbol de directorios**, una **tabla hash propia** y un **grafo
-ponderado** (Dijkstra, BFS/DFS) como enrutador de red, dejando registro de las
-operaciones en `data/network_audit_log.txt`.
+integra un árbol de directorios, una tabla hash propia y un grafo ponderado
+(Dijkstra y BFS) como enrutador de red.
+
+## Descripción
+
+Cada servidor de la red tiene su propio sistema de archivos y su propia tabla
+de usuarios. El menú permite seleccionar el servidor activo; las operaciones de
+archivos y usuarios se aplican solo a ese servidor. Las conexiones y las rutas
+se calculan sobre el grafo completo.
+
+El sistema registra las operaciones en `network_audit_log.txt` y libera los
+recursos con `delete`/`delete[]` al salir.
 
 ## Integrantes
 
-<!-- Completar nombre y rama de cada integrante -->
-
 | # | Nombre | Rama de Git |
 |---|--------|-------------|
-| 1 |        |             |
-| 2 |        |             |
-| 3 |        |             |
-| 4 |        |             |
+| 1 | Cris | `cristofer` |
+| 2 | Liseth | `Arbol-de-Directorios-Liseth` |
+| 3 | Angel | `Angel` |
+| 4 | Cesar | `Cesar` |
 
 ## Estructura de carpetas
 
-```
+```text
 proyecto/
-├── .gitignore               -> ignora binarios (*.o/*.exe/network_os) y data/*.txt/*.log
-├── Makefile                 -> g++ -std=c++17 -Wall -Wextra -g -fsanitize=address $(find src -name '*.cpp')
+├── .gitignore
+├── Makefile
 ├── README.md
-├── data/                    -> .csv de entrada (versionados) y el log generado en ejecución (no versionado)
+├── data/
 │   ├── README.md
-│   └── network_audit_log.txt (generado)
-├── docs/                    -> documentación del equipo
-│   └── README.md
+│   ├── servidores.csv       -> nombres y orden de ids
+│   ├── conexiones.csv       -> origen,destino,latencia_ms
+│   └── rutas.csv             -> servidor,ruta_padre,nombre,tipo
+├── network_audit_log.txt (generado, no versionado)
+├── docs/
+│   ├── README.md
+│   ├── arbol-directorios.md
+│   ├── tabla-hash.md
+│   └── grafo.md
 ├── src/
-│   ├── main.cpp             -> crea SistemaArchivos + TablaHash + RedServidores, lanza menú, libera con delete
-│   ├── Servidor.h           -> struct Servidor { nombre, SistemaArchivos archivos, TablaHash usuarios }
-│   ├── auditoria/           -> escritura y lectura de data/network_audit_log.txt
-│   │   ├── auditoria.hpp    -> AuditLogger::registrar / leerYMostrar / leer_log + RUTA_LOG_AUDITORIA
-│   │   └── auditoria.cpp    -> append con [YYYY-MM-DD HH:MM:SS]
+│   ├── main.cpp              -> carga inicial, integración y liberación
+│   ├── Servidor.h            -> nombre + árbol + tabla de usuarios
+│   ├── auditoria/            -> AuditLogger y bitácora
 │   ├── estructuras/
-│   │   ├── arbol/           -> árbol de directorios (crear, búsqueda recursiva, eliminación en cascada)
-│   │   │   ├── arbol_directorios.hpp
-│   │   │   └── arbol_directorios.cpp
-│   │   ├── hash/            -> tabla hash propia (Horner 31 + encadenamiento)
-│   │   │   ├── tabla_hash.hpp
-│   │   │   └── tabla_hash.cpp
-│   │   ├── grafo/           -> algoritmos sobre IGrafo (Dijkstra, BFS)
-│   │   │   ├── dijkstra.hpp/.cpp
-│   │   │   └── recorridos.hpp/.cpp
-│   │   └── redservidores/   -> grafo oficial : public IGrafo (listas de adyacencia manuales)
-│   │       ├── IGrafo.h + IAlgoritmoRuta.h
-│   │       ├── ResultadoRuta.h/.cpp + ColaCircular.h/.cpp
-│   │       ├── BusquedaAnchura.h/.cpp + ImpresorRutas.h/.cpp
-│   │       └── RedServidores.h/.cpp
-│   ├── menu/                -> menú interactivo de consola (0-13)
-│   │   ├── menu.hpp         -> struct ContextoSistema + mostrar_menu/ejecutar_menu
-│   │   └── menu.cpp
-│   └── output/              -> binarios locales de pruebas (no versionar)
-├── tests/                   -> pruebas por módulo (compilar con -fsanitize=address)
-│   ├── README.md
-│   ├── test_arbol.cpp       -> suite SistemaArchivos (incluye estrés 500 niveles + cascada masiva)
-│   ├── test_hash.cpp        -> suite TablaHash (incluye estrés 2000 colisiones)
-│   ├── test_grafo.cpp       -> suite RedServidores 100 nodos + 500 ops + aislado BFS
-│   └── test_estres.cpp      -> auditoría 3000 registros en orden + resumen global
-└── network_os.exe           -> (generado, no versionado)
+│   │   ├── arbol/            -> SistemaArchivos
+│   │   ├── hash/             -> TablaHash
+│   │   ├── grafo/            -> Dijkstra y BFS
+│   │   └── redservidores/    -> RedServidores y estructuras auxiliares
+│   └── menu/                 -> ContextoSistema y menú interactivo
+└── tests/                    -> pruebas por módulo
 ```
 
-## Cómo compilar y ejecutar
+## Carga inicial
 
-Requisitos: `g++` con soporte de **C++17** (probado con GCC 13).
+Al iniciar, `main.cpp` carga en este orden:
 
-Compilar (parado en la carpeta `proyecto/`):
+1. `data/servidores.csv`: cada línea es un nombre; el orden define el id.
+2. `data/conexiones.csv`: cada línea usa `origen,destino,latencia_ms`.
+3. `data/rutas.csv`: cada línea usa `servidor,ruta_padre,nombre,tipo`.
+
+Las líneas que empiezan con `#` son comentarios. Si un archivo falta, el
+programa informa el problema y permite continuar usando el menú.
+
+## Compilación y ejecución
+
+### Linux
+
+El `Makefile` usa C++17, advertencias y AddressSanitizer:
 
 ```bash
-g++ -std=c++17 -Wall -Wextra -Isrc -o network_os $(find src -name '*.cpp')
-```
-
-Ejecutar:
-
-```bash
+make
 ./network_os
 ```
 
-> El binario y los logs generados en `data/` **no** se versionan (ver
-> `.gitignore`); los `.csv` de entrada sí.
+El comando equivalente, sin GNU Make, es:
+
+```bash
+g++ -std=c++17 -Wall -Wextra -g -fsanitize=address $(find src -name '*.cpp') -o network_os
+./network_os
+```
+
+### Windows (MinGW/GCC)
+
+El comando `find` no existe en Windows. Desde `proyecto/`, en PowerShell:
+
+```powershell
+$fuentes = Get-ChildItem -Path src -Filter *.cpp -Recurse | ForEach-Object { $_.FullName }
+g++ -std=c++17 -Wall -Wextra -g -o network_os.exe $fuentes
+.\network_os.exe
+```
+
+El entorno Windows usa GCC 16.1.0. La distribución MinGW usada por el equipo no
+incluye el runtime de AddressSanitizer, por eso la compilación de Windows no
+usa `-fsanitize=address`. En Linux sí debe ejecutarse con ASan y terminar sin
+reportes de fugas.
+
+Para limpiar los artefactos de Linux:
+
+```bash
+make clean
+```
+
+## Pruebas
+
+Las pruebas de cada módulo están en `tests/`. Los comandos exactos de compilación
+de cada prueba están comentados al inicio de cada archivo.
+
+## Documentación
+
+Los diagramas de representación y las decisiones de memoria están en:
+
+- [Árbol de directorios](docs/arbol-directorios.md)
+- [Tabla hash](docs/tabla-hash.md)
+- [Grafo de servidores](docs/grafo.md)
 
 ## Bitácora de Inteligencia Artificial
 

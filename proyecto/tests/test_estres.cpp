@@ -3,7 +3,7 @@
  * Módulo      : Auditoría + resumen global — pruebas de estrés
  * Archivo     : tests/test_estres.cpp
  * Descripción : Registra 3000 acciones seguidas con AuditLogger::registrar y
- *               confirma que data/network_audit_log.txt crece exactamente en
+ *               confirma que network_audit_log.txt crece exactamente en
  *               3000 líneas en orden, sin sobrescribir. No toca algoritmos.
  * Compilar (parado en proyecto/):
  *   g++ -std=c++17 -Wall -Wextra -g -fsanitize=address -Isrc -o tests/output/test_estres.exe tests/test_estres.cpp src/auditoria/auditoria.cpp
@@ -18,7 +18,7 @@
 
 // Cuenta líneas del log (0 si aún no existe). Se corre parado en proyecto/.
 static long contarLineas() {
-    std::ifstream f("data/network_audit_log.txt");
+    std::ifstream f("network_audit_log.txt");
     if (!f.is_open()) return 0;
     long n = 0;
     std::string l;

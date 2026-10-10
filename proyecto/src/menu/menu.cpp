@@ -3,14 +3,13 @@
  * Materia     : Estructuras de Datos
  * Módulo      : Menú interactivo
  * Archivo     : menu.cpp
- * Descripción : Implementación del menú interactivo de consola: deriva a
- *               arbol_directorios, tabla_hash, RedServidores y auditoría.
+ * Descripción : Integra el menú con un Servidor por id de la red.
  * ========================================================================== */
 
 #include "menu.hpp"
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <limits>
 #include <string>
 
@@ -18,15 +17,13 @@
 
 using namespace std;
 
-// Lee una línea completa tras limpiar el buffer numérico.
 static string leerLinea(const string& prompt) {
     cout << prompt;
-    string s;
-    getline(cin, s);
-    return s;
+    string texto;
+    getline(cin, texto);
+    return texto;
 }
 
-// Lee un entero validando el fallo de cin.
 static bool leerEntero(const string& prompt, int& salida) {
     cout << prompt;
     if (!(cin >> salida)) {
@@ -38,14 +35,37 @@ static bool leerEntero(const string& prompt, int& salida) {
     return true;
 }
 
+static bool servidorValido(const ContextoSistema& contexto, int id) {
+    return contexto.servidores != nullptr && contexto.red != nullptr &&
+           id >= 0 && id < contexto.maxServidores && contexto.red->idValido(id);
+}
+
+static Servidor* servidorActivo(ContextoSistema& contexto) {
+    if (!servidorValido(contexto, contexto.servidorActual)) {
+        return nullptr;
+    }
+    return &contexto.servidores[contexto.servidorActual];
+}
+
+static void mostrarServidorActivo(const ContextoSistema& contexto) {
+    cout << "\nServidor activo: ";
+    if (!servidorValido(contexto, contexto.servidorActual)) {
+        cout << "ninguno\n";
+        return;
+    }
+
+    cout << contexto.servidorActual << " - "
+         << contexto.servidores[contexto.servidorActual].nombre << "\n";
+}
+
 void mostrar_menu() {
     cout << "\n===== Network OS =====\n";
-    cout << "ARCHIVOS (arbol)\n";
+    cout << "ARCHIVOS (servidor activo)\n";
     cout << setw(3) << 1 << ". Crear\n";
     cout << setw(3) << 2 << ". Buscar\n";
     cout << setw(3) << 3 << ". Mostrar\n";
     cout << setw(3) << 4 << ". Eliminar cascada\n";
-    cout << "\nUSUARIOS (hash)\n";
+    cout << "\nUSUARIOS (servidor activo)\n";
     cout << setw(3) << 5 << ". Registrar\n";
     cout << setw(3) << 6 << ". Autenticar\n";
     cout << setw(3) << 7 << ". Estadisticas\n";
@@ -55,81 +75,153 @@ void mostrar_menu() {
     cout << setw(3) << 10 << ". Eliminar conexion\n";
     cout << setw(3) << 11 << ". Ruta mas corta\n";
     cout << setw(3) << 12 << ". Ping general\n";
-    cout << "\nAUDITORIA\n";
-    cout << setw(3) << 13 << ". Leer log\n";
+    cout << "\nCONTROL\n";
+    cout << setw(3) << 13 << ". Leer bitacora\n";
+    cout << setw(3) << 14 << ". Seleccionar servidor\n";
     cout << setw(3) << 0 << ". Salir\n";
 }
 
+static void opCrear(ContextoSistema& contexto) {
+    Servidor* servidor = servidorActivo(contexto);
+    if (servidor == nullptr) {
+        cout << "No hay servidor activo.\n";
+        return;
+    }
 
-
-static void opCrear(ContextoSistema& ctx) {
-    string padre = leerLinea("Ruta padre (ej. /): ");
-    string nombre = leerLinea("Nombre: ");
-    string tipo = leerLinea("Tipo (1=carpeta, 0=archivo): ");
-    bool ok = ctx.archivos->crear(padre.empty() ? "/" : padre, nombre, tipo == "1");
-    cout << (ok ? "Creado.\n" : "No creado (padre/dup).\n");
-    AuditLogger::registrar(string("ARCHIVO crear ") + nombre);
+    const string padre = leerLinea("Ruta padre (ej. /): ");
+    const string nombre = leerLinea("Nombre: ");
+    const string tipo = leerLinea("Tipo (1=carpeta, 0=archivo): ");
+    const bool ok = servidor->archivos.crear(
+        padre.empty() ? "/" : padre, nombre, tipo == "1");
+    cout << (ok ? "Creado.\n" : "No creado (padre, nombre o duplicado).\n");
 }
 
-static void opRegistrar(ContextoSistema& ctx) {
-    string u = leerLinea("Usuario: ");
-    string c = leerLinea("Clave: ");
-    cout << "Indice: " << ctx.usuarios->obtenerIndice(u) << "\n";
-    cout << (ctx.usuarios->insertar(u, c) ? "Registrado.\n" : "Duplicado.\n");
+static void opRegistrar(ContextoSistema& contexto) {
+    Servidor* servidor = servidorActivo(contexto);
+    if (servidor == nullptr) {
+        cout << "No hay servidor activo.\n";
+        return;
+    }
+
+    const string usuario = leerLinea("Usuario: ");
+    const string clave = leerLinea("Clave: ");
+    cout << "Indice: " << servidor->usuarios.obtenerIndice(usuario) << "\n";
+    cout << (servidor->usuarios.insertar(usuario, clave) ? "Registrado.\n" : "Duplicado.\n");
 }
 
-static void opAutenticar(ContextoSistema& ctx) {
-    string u = leerLinea("Usuario: ");
-    string c = leerLinea("Clave: ");
-    cout << (ctx.usuarios->autenticar(u, c) ? "LOGIN OK.\n" : "LOGIN FALLO.\n");
+static void opAutenticar(ContextoSistema& contexto) {
+    Servidor* servidor = servidorActivo(contexto);
+    if (servidor == nullptr) {
+        cout << "No hay servidor activo.\n";
+        return;
+    }
+
+    const string usuario = leerLinea("Usuario: ");
+    const string clave = leerLinea("Clave: ");
+    cout << (servidor->usuarios.autenticar(usuario, clave) ? "LOGIN OK.\n" : "LOGIN FALLO.\n");
 }
 
-void ejecutar_menu(ContextoSistema& ctx) {
-    int op = -1;
-    while (op != 0) {
+void ejecutar_menu(ContextoSistema& contexto) {
+    int opcion = -1;
+    while (opcion != 0) {
+        mostrarServidorActivo(contexto);
         mostrar_menu();
-        if (!leerEntero("Opcion: ", op)) {
+        if (!leerEntero("Opcion: ", opcion)) {
             cout << "Opcion invalida.\n";
             continue;
         }
-        if (op == 1) opCrear(ctx);
-        else if (op == 2) {
-            string n = leerLinea("Nombre: ");
-            cout << (ctx.archivos->buscar(n) != nullptr ? "Encontrado.\n" : "No encontrado.\n");
+
+        Servidor* servidor = servidorActivo(contexto);
+        if (opcion == 1) {
+            opCrear(contexto);
+        } else if (opcion == 2) {
+            if (servidor == nullptr) {
+                cout << "No hay servidor activo.\n";
+            } else {
+                const string nombre = leerLinea("Nombre: ");
+                cout << (servidor->archivos.buscar(nombre) != nullptr
+                             ? "Encontrado.\n"
+                             : "No encontrado.\n");
+            }
+        } else if (opcion == 3) {
+            if (servidor == nullptr) {
+                cout << "No hay servidor activo.\n";
+            } else {
+                servidor->archivos.mostrar();
+            }
+        } else if (opcion == 4) {
+            if (servidor == nullptr) {
+                cout << "No hay servidor activo.\n";
+            } else {
+                const string ruta = leerLinea("Ruta (ej. /docs): ");
+                cout << (servidor->archivos.eliminar(ruta) ? "Eliminado.\n" : "No eliminado.\n");
+            }
+        } else if (opcion == 5) {
+            opRegistrar(contexto);
+        } else if (opcion == 6) {
+            opAutenticar(contexto);
+        } else if (opcion == 7) {
+            if (servidor == nullptr) {
+                cout << "No hay servidor activo.\n";
+            } else {
+                servidor->usuarios.mostrarEstadisticas();
+            }
+        } else if (opcion == 8) {
+            const string nombre = leerLinea("Servidor: ");
+            const int id = contexto.red->agregarServidor(nombre);
+            if (id >= 0 && id < contexto.maxServidores) {
+                contexto.servidores[id].nombre = nombre;
+                contexto.servidorActual = id;
+                cout << "Servidor creado con id=" << id << "\n";
+            } else {
+                cout << "No se pudo crear el servidor.\n";
+            }
+        } else if (opcion == 9) {
+            int origen = 0;
+            int destino = 0;
+            int latencia = 0;
+            if (!leerEntero("Origen: ", origen) || !leerEntero("Destino: ", destino) ||
+                !leerEntero("Latencia: ", latencia)) {
+                cout << "Parametros invalidos.\n";
+                continue;
+            }
+            cout << (contexto.red->agregarConexion(origen, destino, latencia)
+                         ? "Agregada.\n"
+                         : "No agregada.\n");
+        } else if (opcion == 10) {
+            int origen = 0;
+            int destino = 0;
+            if (!leerEntero("Origen: ", origen) || !leerEntero("Destino: ", destino)) {
+                cout << "Parametros invalidos.\n";
+                continue;
+            }
+            cout << (contexto.red->eliminarConexion(origen, destino)
+                         ? "Eliminada.\n"
+                         : "No existia.\n");
+        } else if (opcion == 11) {
+            int origen = 0;
+            int destino = 0;
+            if (!leerEntero("Origen: ", origen) || !leerEntero("Destino: ", destino)) {
+                cout << "Parametros invalidos.\n";
+                continue;
+            }
+            contexto.red->rutaMasCorta(origen, destino);
+        } else if (opcion == 12) {
+            contexto.red->pingGeneral();
+        } else if (opcion == 13) {
+            AuditLogger::leerYMostrar();
+        } else if (opcion == 14) {
+            int id = 0;
+            if (!leerEntero("Id del servidor: ", id) || !servidorValido(contexto, id)) {
+                cout << "Servidor invalido.\n";
+            } else {
+                contexto.servidorActual = id;
+                cout << "Servidor seleccionado: " << id << "\n";
+            }
+        } else if (opcion == 0) {
+            cout << "Saliendo.\n";
+        } else {
+            cout << "Opcion invalida.\n";
         }
-        else if (op == 3) ctx.archivos->mostrar();
-        else if (op == 4) {
-            string r = leerLinea("Ruta (ej. /docs): ");
-            cout << (ctx.archivos->eliminar(r) ? "Eliminado.\n" : "No eliminado.\n");
-            AuditLogger::registrar(string("ARCHIVO eliminar ") + r);
-        }
-        else if (op == 5) opRegistrar(ctx);
-        else if (op == 6) opAutenticar(ctx);
-        else if (op == 7) ctx.usuarios->mostrarEstadisticas();
-        else if (op == 8) {
-            string n = leerLinea("Servidor: ");
-            int id = ctx.red->agregarServidor(n);
-            cout << "id=" << id << "\n";
-        }
-        else if (op == 9) {
-            int a, b, lat;
-            if (!leerEntero("Origen: ", a) || !leerEntero("Destino: ", b) ||
-                !leerEntero("Latencia: ", lat)) { cout << "Invalidos.\n"; continue; }
-            cout << (ctx.red->agregarConexion(a, b, lat) ? "Agregada.\n" : "No agregada.\n");
-        }
-        else if (op == 10) {
-            int a, b;
-            if (!leerEntero("Origen: ", a) || !leerEntero("Destino: ", b)) { cout << "Invalidos.\n"; continue; }
-            cout << (ctx.red->eliminarConexion(a, b) ? "Eliminada.\n" : "No existia.\n");
-        }
-        else if (op == 11) {
-            int a, b;
-            if (!leerEntero("Origen: ", a) || !leerEntero("Destino: ", b)) { cout << "Invalidos.\n"; continue; }
-            ctx.red->rutaMasCorta(a, b);
-        }
-        else if (op == 12) ctx.red->pingGeneral();
-        else if (op == 13) AuditLogger::leer_log();
-        else if (op == 0) cout << "Saliendo.\n";
-        else cout << "Opcion invalida.\n";
     }
 }

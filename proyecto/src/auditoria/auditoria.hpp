@@ -4,7 +4,7 @@
  * Módulo      : Auditoría
  * Archivo     : auditoria.hpp
  * Descripción : Declaraciones del registro de auditoría: escritura y
- *               lectura de data/network_audit_log.txt (una línea por
+ *               lectura de network_audit_log.txt (una línea por
  *               operación del sistema).
  * Autor       : Cris
  * ========================================================================== */
@@ -17,7 +17,7 @@
 using namespace std;
 
 // Ruta única del log de auditoría (versionada fuera: ver .gitignore).
-static const char* const RUTA_LOG_AUDITORIA = "data/network_audit_log.txt";
+static const char* const RUTA_LOG_AUDITORIA = "network_audit_log.txt";
 
 class AuditLogger {
 public:

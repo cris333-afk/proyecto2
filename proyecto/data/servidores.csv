@@ -1,0 +1,6 @@
+# Servidores disponibles para la carga inicial.
+# El orden de las líneas define el id: 0, 1, 2, ...
+Servidor_A
+Servidor_B
+Servidor_C
+Servidor_D

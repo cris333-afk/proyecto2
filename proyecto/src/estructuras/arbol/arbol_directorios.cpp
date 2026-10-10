@@ -13,6 +13,8 @@
 #include <iostream>
 #include <string>
 
+#include "../../auditoria/auditoria.hpp"
+
 // Crea el nodo raíz del sistema de archivos: la carpeta "/".
 // Se reserva con new y queda sin hijos, sin hermano y sin padre.
 SistemaArchivos::SistemaArchivos() {
@@ -117,6 +119,7 @@ bool SistemaArchivos::crear(const std::string& rutaPadre,
         ultimo->siguienteHermano = nuevo;  // enlazar como nuevo hermano
     }
 
+    AuditLogger::registrar("ARCHIVO creado: " + nombre);
     return true;
 }
 
@@ -185,6 +188,7 @@ bool SistemaArchivos::eliminar(const std::string& ruta) {
     // 4) Liberar el nodo y todo su subárbol (postorden).
     eliminarSubarbol(nodo);
 
+    AuditLogger::registrar("ARCHIVO eliminado: " + ruta);
     return true;
 }
 

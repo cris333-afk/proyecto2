@@ -16,7 +16,7 @@
 
 /* --------------------------------------------------------------------------
  * Integración con el módulo de auditoría (responsable: Cris).
- * Usa el AuditLogger real que escribe en data/network_audit_log.txt.
+ * Usa el AuditLogger real que escribe en network_audit_log.txt.
  * -------------------------------------------------------------------------- */
 #include "../../auditoria/auditoria.hpp"
 
@@ -159,6 +159,7 @@ bool TablaHash::eliminar(const std::string& usuario) {
 
     delete actual;  // libera el nodo exacto que se sacó de la cadena
     --cantidad;
+    AuditLogger::registrar("Usuario eliminado: " + usuario);
     return true;
 }
 

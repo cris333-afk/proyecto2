@@ -7,7 +7,7 @@
 #include "../grafo/dijkstra.hpp"
 #include "../../auditoria/auditoria.hpp"
 
-// Auditoría real del equipo (Cris): escribe en data/network_audit_log.txt.
+// Auditoría real del equipo (Cris): escribe en network_audit_log.txt.
 #include <iostream>
 
 // Reserva los arreglos de cabezas y nombres.
