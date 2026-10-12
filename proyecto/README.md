@@ -487,3 +487,221 @@ la arquitectura del proyecto.
 > el Makefile existente; al final, dame una tabla con las clases nuevas y
 > su responsabilidad, y 3 preguntas de defensa para practicar.
 
+
+# Prompts de Arbol de directorio implementado por Liseth Briones 
+
+## 1. Propósito y alcance
+
+Este documento registra el proceso de implementación y corrección del módulo Árbol de Directorios, desarrollado en C++ para el proyecto Network OS.
+
+La inteligencia artificial se utilizó como herramienta de apoyo mediante instrucciones específicas y acotadas. El objetivo fue adaptar la implementación a la arquitectura existente del repositorio, respetar las rutas reales de los archivos, conservar los nombres de las funciones definidos en la guía y evitar modificaciones en módulos ajenos.
+
+El código generado o sugerido por la IA debía revisarse e integrarse con la implementación existente. Su utilización no sustituye la revisión humana, la compilación ni la ejecución de las pruebas del proyecto.
+
+## 2. Arquitectura y restricciones comunes
+
+### 2.1. Estructura del repositorio
+
+La raíz del repositorio es `proyecto2/`. El código fuente se encuentra dentro de `proyecto/`.
+
+Los archivos principales del módulo son:
+
+- `proyecto/src/estructuras/arbol/arbol_directorios.hpp`
+- `proyecto/src/estructuras/arbol/arbol_directorios.cpp`
+
+La implementación utiliza la clase `SistemaArchivos` y la estructura `NodoArchivo`.
+
+### 2.2. Estructura de datos
+
+La estructura `NodoArchivo` contiene los siguientes atributos:
+
+- `nombre`: nombre del archivo o carpeta.
+- `esCarpeta`: indica si el nodo representa una carpeta.
+- `primerHijo`: apunta al primer hijo del nodo.
+- `siguienteHermano`: apunta al siguiente nodo del mismo nivel.
+- `padre`: apunta al nodo padre.
+
+La representación del árbol se basa en los enlaces `primerHijo` y `siguienteHermano`, conservando además un puntero al padre de cada nodo.
+
+No se deben utilizar contenedores STL como `vector`, `map`, `list` o `set`. El uso de `std::string` está permitido.
+
+### 2.3. Restricciones de implementación
+
+Durante el desarrollo se establecieron las siguientes restricciones:
+
+- Mantener la clase `SistemaArchivos` y la estructura `NodoArchivo` definidas para el módulo.
+- Trabajar sobre los archivos existentes `arbol_directorios.hpp` y `arbol_directorios.cpp`.
+- No crear los archivos alternativos `SistemaArchivos.h` ni `SistemaArchivos.cpp`.
+- Respetar las firmas y los nombres de las funciones acordadas.
+- Resolver las rutas completas desde la raíz para las operaciones de creación y eliminación.
+- Mantener `buscar()` como una búsqueda recursiva por nombre, sin utilizarla para resolver rutas.
+- Evitar cambios en otros módulos, pruebas o archivos que estén fuera del alcance de cada tarea.
+- No ejecutar comandos de compilación que incluyan `-fsanitize=address` en la corrección final.
+
+## 3. Registro de prompts de implementación
+
+Los prompts se organizaron por etapas para implementar las funcionalidades del módulo de manera incremental. Cada etapa partía de la implementación existente y establecía restricciones para limitar los cambios solicitados.
+
+### 3.1. Prompt 1: Estructura de `NodoArchivo` y `SistemaArchivos`
+
+**Objetivo:** definir la estructura base del árbol de directorios y crear el nodo raíz del sistema de archivos.
+
+Se solicitó declarar `NodoArchivo` con sus cinco atributos y definir la clase `SistemaArchivos`, que debía contener un puntero privado `raiz`.
+
+El constructor `SistemaArchivos()` debía reservar dinámicamente el nodo raíz e inicializarlo con los siguientes valores:
+
+- `nombre = "/"`
+- `esCarpeta = true`
+- `primerHijo = nullptr`
+- `siguienteHermano = nullptr`
+- `padre = nullptr`
+
+En esta etapa únicamente se debía implementar el constructor, sin agregar todavía las operaciones de creación, búsqueda, eliminación, visualización o conteo.
+
+**Adaptación al proyecto:** se utilizaron los archivos reales del módulo y se mantuvo la arquitectura definida, sin crear archivos alternativos.
+
+### 3.2. Prompt 2: Implementación de `crear()`
+
+**Objetivo:** crear un archivo o carpeta como hijo directo de una carpeta existente.
+
+La función definida fue:
+
+```cpp
+bool crear(
+    const std::string& rutaPadre,
+    const std::string& nombre,
+    bool esCarpeta
+);
+```
+
+La implementación debía resolver `rutaPadre` desde la raíz `/`, verificar que la ruta existiera y que correspondiera a una carpeta. También debía impedir nombres duplicados dentro de un mismo directorio.
+
+Se estableció que dos archivos con el mismo nombre podían existir en directorios diferentes, siempre que no fueran hijos del mismo padre.
+
+El nuevo nodo debía inicializar correctamente sus punteros y enlazarse mediante `primerHijo` y `siguienteHermano`.
+
+**Adaptación al proyecto:** se priorizó la resolución de la ruta completa para localizar al padre correcto, sin utilizar la búsqueda global por nombre para esta operación.
+
+### 3.3. Prompt 3: Implementación de `buscar()`
+
+**Objetivo:** localizar recursivamente un nodo a partir de su nombre.
+
+La función definida fue:
+
+```cpp
+NodoArchivo* buscar(const std::string& nombre) const;
+```
+
+Se solicitó iniciar la búsqueda desde la raíz, revisar el nodo actual y recorrer sus descendientes utilizando `primerHijo` y `siguienteHermano`.
+
+La función debía retornar el puntero al nodo encontrado o `nullptr` cuando no existiera ninguna coincidencia.
+
+La búsqueda se definió por nombre, no por ruta. Por lo tanto, si existían nombres iguales en diferentes directorios, podía encontrarse una de las coincidencias según el orden del recorrido.
+
+**Adaptación al proyecto:** se mantuvo separada la búsqueda por nombre de la resolución de rutas completas utilizada por `crear()` y `eliminar()`.
+
+### 3.4. Prompt 4: Implementación de `eliminar()` y `eliminarSubarbol()`
+
+**Objetivo:** eliminar archivos o carpetas mediante su ruta completa y liberar correctamente la memoria de los nodos eliminados.
+
+Las funciones definidas fueron:
+
+```cpp
+bool eliminar(const std::string& ruta);
+
+void eliminarSubarbol(NodoArchivo* nodo);
+```
+
+La función `eliminar()` debía resolver la ruta desde la raíz, rechazar las rutas inexistentes y evitar la eliminación de `/`.
+
+Una vez localizado el nodo, debía desvincularse de la lista de hijos de su padre. Después, se debía llamar a `eliminarSubarbol()` para liberar el nodo y todos sus descendientes.
+
+La eliminación recursiva debía realizarse en postorden, guardando el puntero al siguiente hermano antes de liberar cada hijo, para evitar acceder a memoria liberada.
+
+También se aclaró la responsabilidad del destructor: debía liberar todo el árbol que todavía perteneciera al objeto, comenzando desde `raiz` mediante `eliminarSubarbol(raiz)`. A diferencia de `eliminar()`, el destructor sí debía liberar la raíz porque destruye el objeto completo.
+
+**Adaptación al proyecto:** se diferenciaron la eliminación selectiva de un subárbol y la liberación total de la estructura durante la destrucción del objeto.
+
+### 3.5. Prompt 5: Implementación de `mostrar()`
+
+**Objetivo:** visualizar el árbol de directorios mediante un recorrido recursivo.
+
+La función pública definida fue:
+
+```cpp
+void mostrar() const;
+```
+
+También se solicitó una función auxiliar privada:
+
+```cpp
+void mostrarRecursivo(NodoArchivo* nodo, int nivel) const;
+```
+
+La función `mostrar()` debía iniciar el recorrido desde la raíz con `nivel = 0`. La función auxiliar debía controlar la sangría utilizando dos espacios por cada nivel de profundidad.
+
+Las carpetas debían mostrarse con `/` al final y los archivos sin ese carácter. La raíz debía mostrarse como `/`, sin agregar una segunda barra.
+
+El recorrido debía respetar los enlaces de primer hijo y siguiente hermano, sin modificar la estructura del árbol.
+
+**Adaptación al proyecto:** se definió una salida jerárquica legible, con sangría por nivel y un formato diferenciado para archivos y carpetas.
+
+### 3.6. Prompt 6: Validación de nombres que contienen `/`
+
+**Objetivo:** corregir un caso límite en la función `crear()`.
+
+Durante la depuración se identificó que la función permitía nombres como `a/b`. Esto provocaba inconsistencias, porque el carácter `/` se interpreta como separador de componentes de una ruta.
+
+La corrección solicitada consistió en agregar una validación puntual en `proyecto/src/estructuras/arbol/arbol_directorios.cpp` para que `crear()` retornara `false` cuando el nombre contuviera `/`, antes de crear o enlazar un nodo.
+
+La modificación debía cumplir las siguientes restricciones:
+
+- No reescribir ni reformatear la función.
+- No alterar otras validaciones, variables, enlaces o retornos.
+- No modificar otras funciones, archivos, pruebas ni módulos.
+- Revisar el `diff` para comprobar que el cambio se limitara a la validación solicitada.
+- No ejecutar comandos de compilación que incluyeran `-fsanitize=address`.
+
+**Adaptación al proyecto:** se delimitó la corrección al caso específico detectado, preservando el comportamiento existente para los demás nombres válidos.
+
+## 4. Pruebas, depuración y verificación
+
+Los prompts de implementación establecieron que no se debían crear ni modificar pruebas durante las etapas iniciales de desarrollo de cada función. Posteriormente, el repositorio contó con el archivo `test_arbol.cpp`.
+
+Durante la depuración se identificó el problema de los nombres que contenían `/`, que dio lugar al sexto prompt de corrección.
+
+La verificación del módulo debe contemplar, según las funcionalidades implementadas:
+
+- Creación de archivos y carpetas.
+- Validación de rutas y nombres duplicados.
+- Búsqueda recursiva por nombre.
+- Eliminación de archivos y carpetas mediante rutas completas.
+- Eliminación recursiva de subárboles.
+- Protección de la raíz del sistema de archivos.
+- Visualización jerárquica del árbol.
+- Conteo de nodos y liberación de memoria.
+
+La existencia de un archivo de pruebas no demuestra por sí sola qué casos fueron ejecutados ni qué resultados se obtuvieron. Por ello, los resultados de compilación y pruebas deben registrarse únicamente cuando hayan sido comprobados en el entorno del proyecto.
+
+## 5. Criterios de revisión humana
+
+La revisión de la implementación asistida por inteligencia artificial debe considerar los siguientes criterios:
+
+1. Comparar los cambios con la guía del proyecto y con el código existente.
+2. Revisar el `diff` para detectar modificaciones fuera del alcance autorizado.
+3. Conservar los nombres y las firmas de las funciones acordadas: `crear()`, `buscar()`, `eliminar()`, `eliminarSubarbol()`, `mostrar()`, `contarNodos()` y el destructor.
+4. Comprobar que la resolución de rutas completas se utilice en las operaciones que lo requieren.
+5. Compilar y ejecutar las pruebas disponibles en el entorno del proyecto.
+6. Verificar que la liberación recursiva de memoria sea segura y que no se acceda a nodos después de liberarlos.
+7. Documentar por separado los cambios de configuración local del editor, ya que no necesariamente forman parte del código entregable.
+8. Evitar asumir que una respuesta de IA garantiza que el código esté correcto.
+
+## 6. Consideraciones finales
+
+La inteligencia artificial se utilizó como apoyo para organizar instrucciones de implementación por etapas y realizar una corrección puntual en el módulo Árbol de Directorios.
+
+El proceso se centró en respetar la estructura real del repositorio, conservar las funciones acordadas, utilizar la representación de primer hijo y siguiente hermano y evitar cambios innecesarios en módulos ajenos.
+
+La revisión humana continúa siendo necesaria para comprobar que el código cumpla con la guía, que los cambios se limiten al alcance solicitado y que las pruebas disponibles se ejecuten correctamente.
+
+
