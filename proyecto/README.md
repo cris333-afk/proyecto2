@@ -119,8 +119,304 @@ Los diagramas de representación y las decisiones de memoria están en:
 
 ## Bitácora de Inteligencia Artificial
 
-<!-- Sección reservada: documentar acá cada prompt usado con la IA
-     (fecha, herramienta, prompt y qué se generó o aprovechó). -->
+## Prompts de Cris
+
+Esta sección documenta honestamente los prompts utilizados por Cris para
+generación de fragmentos, pruebas o depuración, y cómo adaptó esa salida a
+la arquitectura del proyecto.
+
+> **Nota:** los prompts siguientes se reconstruyeron a partir de las
+> conversaciones y los cambios reales del proyecto. Conservan la intención
+> original, pero no son una exportación literal de cada mensaje.
+
+### Prompt 1 — Estructura inicial del proyecto
+
+**Fecha:** 20/09/2026
+**Herramienta:** OpenCode / IA
+
+> Crea un proyecto llamado Network OS en C++17. Debe tener `README.md`,
+> `Makefile`, `.gitignore`, una carpeta `src/` con `main.cpp` y los módulos del
+> sistema, y una carpeta `tests/` con pruebas para árbol, hash y grafo.
+>
+> El Makefile debe compilar con C++17, `-Wall`, `-Wextra`, depuración y
+> AddressSanitizer. También debe incluir los objetivos `all`, `run` y `clean`.
+>
+> El proyecto no puede utilizar `vector`, `map`, `list`, `set` ni otros
+> contenedores de la STL en los módulos evaluados. Las estructuras necesitan
+> punteros, `new`, `delete` y arreglos propios.
+>
+> El README debe tener las secciones de descripción, compilación y bitácora de
+> IA. El `.gitignore` debe excluir binarios, objetos, carpetas de compilación,
+> el log de auditoría y archivos del IDE.
+
+**Qué generó:** Esqueleto inicial del proyecto.
+**Adaptación:** Se organizó dentro de `proyecto/` y se respetó la estructura real del equipo.
+
+---
+
+### Prompt 2 — Implementación de AuditLogger
+
+**Fecha:** 25/09/2026
+**Herramienta:** OpenCode / IA
+
+> Implementa la clase `AuditLogger` con dos métodos estáticos:
+> `registrar(const std::string&)` y `leerYMostrar()`.
+>
+> `registrar` debe abrir `network_audit_log.txt` en modo `append`, obtener la
+> fecha y hora actual con `std::strftime` usando el formato
+> `%Y-%m-%d %H:%M:%S`, y escribir una línea con el formato
+> `[FECHA HORA] detalle`.
+>
+> `leerYMostrar` debe abrir el mismo archivo en modo lectura e imprimir cada
+> línea por consola. Si el archivo no existe, debe mostrar un mensaje indicando
+> que todavía no hay registros, sin lanzar excepciones.
+>
+> Solo se pueden utilizar `std::string`, `fstream`, `iostream` y `ctime`. No
+> cambies las firmas ni agregues dependencias externas. Los comentarios deben
+> estar en español y explicar el porqué de las decisiones.
+
+**Qué generó:** Clase y métodos de auditoría.
+**Adaptación:** Se integró en `src/auditoria/auditoria.hpp/.cpp` usando `network_audit_log.txt`.
+
+---
+
+### Prompt 3 — Contratos de los módulos
+
+**Fecha:** 25/09/2026
+**Herramienta:** OpenCode / IA
+
+> Publica los archivos de contrato de los tres módulos de las compañeras:
+> `SistemaArchivos`, `RedServidores` y `TablaHash`.
+>
+> Incluye las estructuras `NodoArchivo`, `Arista` y `NodoHash`, y declara las
+> clases con exactamente los métodos acordados. Los constructores,
+> destructores y métodos deben quedar solamente declarados; no debes
+> implementar ningún cuerpo.
+>
+> Cada cabecera debe tener include guard, incluir `<string>` cuando sea
+> necesario y declarar los atributos privados que cada módulo necesitará. Usa
+> arreglos y punteros propios, sin contenedores de la STL.
+
+**Qué generó:** Cabeceras con las estructuras y firmas.
+**Adaptación:** Se fijaron las firmas antes de que las compañeras implementaran sus módulos.
+
+---
+
+### Prompt 4 — Creación de Servidor.h
+
+**Fecha:** 25/09/2026
+**Herramienta:** OpenCode / IA
+
+> Crea `Servidor.h` con la estructura `Servidor`, que debe contener un
+> `std::string nombre`, un objeto `SistemaArchivos archivos` y un objeto
+> `TablaHash usuarios`.
+>
+> Incluye las cabeceras necesarias para que los dos tipos estén disponibles.
+> Agrega un include guard y deja únicamente la declaración de la estructura,
+> sin métodos ni lógica adicional.
+
+**Qué generó:** Estructura `Servidor`.
+**Adaptación:** Se incluyeron las cabeceras reales de árbol y hash del proyecto.
+
+---
+
+### Prompt 5 — Uso de using namespace std
+
+**Fecha:** 25/09/2026
+**Herramienta:** OpenCode / IA
+
+> Homogeneiza el estilo del proyecto usando `using namespace std;` en los
+> archivos del proyecto. Revisa que la directiva quede después de los includes
+> y que no se introduzca ningún contenedor de la STL.
+>
+> No cambies firmas públicas, nombres de clases ni la lógica de los módulos.
+> El cambio debe ser únicamente de estilo y debe compilar sin advertencias.
+
+**Qué generó:** Directivas para los archivos modificados.
+**Adaptación:** Se revisó que no se introdujeran contenedores de la STL.
+
+---
+
+### Prompt 6 — Organización de GitHub
+
+**Fecha:** 25/09/2026
+**Herramienta:** OpenCode / IA
+
+> Prepara la organización del proyecto en GitHub: repositorio, rama `main`,
+> una rama por integrante y un flujo de Pull Request para integrar los cambios.
+>
+> El README, `.gitignore` y Makefile deben quedar como base común. La rama
+> `main` debe permanecer estable y las integrantes deben trabajar en su propia
+> rama. También debe quedar preparado el historial de
+> commits para que los cambios puedan revisarse.
+
+**Qué generó:** Estructura de trabajo para GitHub.
+**Adaptación:** Se organizaron las ramas `Angel`, `Cesar`, `Arbol-de-Directorios-Liseth` y `cristofer`.
+
+---
+
+### Prompt 7 — Integración de main en cristofer
+
+**Fecha:** 09/10/2026
+**Herramienta:** OpenCode / IA
+
+> Integra los cambios recientes de `main` dentro de la rama `cristofer`.
+> Primero compara el historial y los archivos modificados para identificar los
+> conflictos.
+>
+> No borres el trabajo de las compañeras ni reemplaces una implementación
+> completa por una versión incompleta. Conserva los módulos que ya funcionan,
+> resuelve los conflictos y revisa las rutas de los archivos después de la
+> integración.
+>
+> Al final, compila el proyecto y deja un commit de merge que documente qué se
+> integró.
+
+**Qué generó:** Análisis de conflictos y propuesta de integración.
+**Adaptación:** Se conservaron las implementaciones existentes y se resolvieron los conflictos de archivos.
+
+---
+
+### Prompt 8 — Integración de Servidor con el menú
+
+**Fecha:** 10/10/2026
+**Herramienta:** OpenCode / IA
+
+> `Servidor.h` existe, pero el menú todavía usa un solo árbol y una sola tabla
+> de usuarios. Integra realmente la estructura: crea un arreglo de servidores
+> y haz que el índice coincida con el id que devuelve `RedServidores`.
+>
+> El menú debe mostrar el servidor activo y permitir seleccionar otro. Las
+> operaciones de archivos y usuarios deben aplicarse al servidor seleccionado.
+>
+> Mantén la propiedad de la memoria: el arreglo de `Servidor` debe liberarse
+> con `delete[]` al finalizar el programa.
+
+**Qué generó:** Propuesta de arreglo de servidores y servidor activo.
+**Adaptación:** El índice de cada `Servidor` corresponde al id generado por `RedServidores`.
+
+---
+
+### Prompt 9 — Carga inicial desde CSV
+
+**Fecha:** 10/10/2026
+**Herramienta:** OpenCode / IA
+
+> Crea tres archivos CSV dentro de `data/`: `servidores.csv`,
+> `conexiones.csv` y `rutas.csv`.
+>
+> El primero debe contener un nombre de servidor por línea. El segundo debe
+> tener `origen,destino,latencia_ms`. El tercero debe tener
+> `servidor,ruta_padre,nombre,tipo`, donde tipo 1 es carpeta y tipo 0 archivo.
+>
+> Agrega en `main.cpp` la carga inicial de esos archivos en ese orden. Si un
+> archivo falta, informa el problema y permite que el menú continúe. Ignora
+> líneas vacías y comentarios que comiencen con `#`, y registra un resumen de
+> los elementos cargados.
+
+**Qué generó:** Archivos de datos y funciones de lectura.
+**Adaptación:** Se integraron con `main.cpp` y se documentaron sus formatos.
+
+---
+
+### Prompt 10 — Diagramas de las estructuras
+
+**Fecha:** 10/10/2026
+**Herramienta:** OpenCode / IA
+
+> Crea documentación Markdown en `docs/` para el árbol de directorios, la
+> tabla hash y el grafo.
+>
+> Cada diagrama debe explicar cómo se representan los datos en memoria, qué
+> punteros o arreglos se usan y cómo se relacionan con las operaciones
+> principales. En el árbol se debe explicar la eliminación en postorden; en el
+> hash, el bucket y las colisiones; y en el grafo, la lista de adyacencia,
+> Dijkstra y BFS.
+>
+> Actualiza `docs/README.md` con enlaces a los tres diagramas.
+
+**Qué generó:** Diagramas y explicaciones de las estructuras.
+**Adaptación:** Se adaptaron a las clases y punteros realmente usados por el proyecto.
+
+---
+
+### Prompt 11 — Actualización del README
+
+**Fecha:** 10/10/2026
+**Herramienta:** OpenCode / IA
+
+> Actualiza el README del proyecto con una descripción de la integración, la
+> tabla de integrantes, la estructura real de carpetas y las instrucciones de
+> compilación.
+>
+> Mantén un comando para Linux usando `find` y agrega una alternativa para
+> Windows/MinGW que funcione desde PowerShell. Corrige la versión de GCC que
+> realmente se está usando y explica la diferencia de AddressSanitizer entre
+> Linux y MinGW.
+>
+> Agrega enlaces a la documentación de `docs/`, pero no llenes todavía la
+> sección de bitácora de IA.
+
+**Qué generó:** Secciones de documentación y tabla de integrantes.
+**Adaptación:** Se corrigieron la ruta de Windows, las versiones de GCC y la organización del proyecto.
+
+---
+
+### Prompt 12 — Cobertura de auditoría
+
+**Fecha:** 10/10/2026
+**Herramienta:** OpenCode / IA
+
+> Revisa que todas las operaciones que modifican el estado queden registradas
+> en `network_audit_log.txt`.
+>
+> Agrega auditoría en la creación y eliminación de archivos y en la
+> eliminación de usuarios, sin duplicar los registros que ya escribe el menú.
+> Revisa también los mensajes de las rutas, conexiones y operaciones de red.
+>
+> Mantén el formato `[FECHA HORA] detalle` y no cambies las firmas públicas de
+> los módulos.
+
+**Qué generó:** Lugares donde agregar registros de auditoría.
+**Adaptación:** Se añadieron logs para crear/eliminar archivos y usuarios, eliminando duplicados del menú.
+
+---
+
+### Prompt 13 — Pruebas con AddressSanitizer
+
+**Fecha:** 10/10/2026
+**Herramienta:** OpenCode / IA
+
+> Compila y ejecuta las pruebas del proyecto en Linux usando el Makefile y
+> `-fsanitize=address`.
+>
+> Ejecuta las pruebas de árbol, hash, grafo y auditoría. Reporta cuántos casos
+> pasaron, si hubo fugas o accesos inválidos y qué archivo y línea los produjo.
+>
+> Si MinGW no puede enlazar `-lasan`, documéntalo y no presentes ese entorno
+> como una ejecución válida de AddressSanitizer.
+
+**Qué generó:** Comandos de compilación y resultados de las pruebas.
+**Adaptación:** Se documentó que MinGW no ofrece `-lasan` y que la validación se realiza en Linux.
+
+---
+
+### Prompt 14 — Preparación del Pull Request
+
+**Fecha:** 11/10/2026
+**Herramienta:** OpenCode / IA
+
+> Prepara la rama `cristofer` para entregar sus cambios a `main`.
+>
+> Revisa que el árbol de trabajo esté limpio, que los commits tengan mensajes
+> claros y que el Pull Request apunte de `cristofer` a `main`. Actualiza el PR
+> con la descripción de los cambios y solicita revisión a otra integrante.
+>
+> No hagas merge directo a `main` hasta que exista una revisión del Pull
+> Request.
+
+**Qué generó:** Commits y PR #3.
+**Adaptación:** Se dejó el PR abierto para revisión de una compañera antes de mezclarlo con `main`.
 
 ## Prompts de Angel 
 
